@@ -1,8 +1,6 @@
 import { app, errorHandler } from "mu";
 import mongoose from "mongoose";
 import util from "util";
-import https from "https";
-import fs from "fs";
 
 import routes from "./app.routes";
 import logger from "./config/Log";
@@ -49,24 +47,10 @@ const init = async () => {
       e => new Error(`unable to connect to database: ${config.mongoUri}`, e)
     );
 
-  if (config.env === "production") {
-    const httpsOptions = {
-      key: fs.readFileSync("certs/localhost-key.pem"),
-      cert: fs.readFileSync("certs/localhost.pem")
-    };
-    https.createServer(httpsOptions, app).listen(443, () => {
-      logger.info(
-        `Started decision server on port 443 in ${app.get("env")} mode`
-      );
-    });
-  } else {
-    // start server
-    app.listen(80, () =>
-      logger.info(
-        `Started decision server on port 80 in ${app.get("env")} mode`
-      )
-    );
-  }
+  // start server
+  app.listen(80, () =>
+    logger.info(`Started decision server on port 80 in ${app.get("env")} mode`)
+  );
 
   // print mongoose logs in dev env
   if (app.get("env") === "development") {
