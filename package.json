@@ -1,0 +1,19 @@
+{
+  "name": "lblod-services",
+  "author": "Maurice Dalderup",
+  "version": "1.0.0",
+  "description": "lblod microservices",
+  "license": "MIT",
+  "main": "",
+  "scripts": {
+    "delete-keys": "cd authentication-service && rm -rf .hfc-key-store && cd ../decision-service && rm -rf .hfc-key-store",
+    "start": "yarn delete-keys && yarn down && yarn up",
+    "up": "cd ../lblod-app-gelinkt-notuleren && docker-compose -f docker-compose.yml -f docker-compose.blockchain.dev.yml -f docker-compose.demo.yml up",
+    "down": "cd ../lblod-app-gelinkt-notuleren && docker-compose -f docker-compose.yml -f docker-compose.blockchain.dev.yml -f docker-compose.demo.yml down",
+    "lint": "yarn lintAuthSerivce && yarn lintEventBroker && yarn lintDecisionService && yarn lintFrontend",
+    "lintAuthSerivce": "cd authentication-service && yarn lint",
+    "lintEventBroker": "cd event-broker && yarn lint",
+    "lintDecisionService": "cd decision-service && yarn lint",
+    "lintFrontend": "cd frontend && yarn lint"
+  }
+}
