@@ -19,7 +19,7 @@ https://github.com/VO-Blockchain/LBLOD.git
 # Development - you can go into each seperate microservice and run
 yarn && yarn start
 
-# Run the full stack
+# Development - Run the full stack
 # For this you need to have the project 'lblod-app-gelinkt-notuleren' next to this folder and run
 yarn && yarn start
 ```
