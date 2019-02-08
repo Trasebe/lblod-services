@@ -16,7 +16,7 @@ Meer info omtrent dit project is te vinden op de Wiki pagina.
 # Clone repo
 https://github.com/VO-Blockchain/LBLOD.git
 
-# Development - you can go into each seperate microservice and run
+# Development - seperate microservice and run
 yarn && yarn start
 
 # Development - Run the full stack
