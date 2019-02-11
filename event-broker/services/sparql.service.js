@@ -16,29 +16,8 @@ import {
   queryPublishResourcesWithError,
   queryErrors,
   deleteQueryErrors,
-  queryAgendas,
-  queryAgendasToSign
+  insertAgendaQuery
 } from "../utils/queries";
-
-export const getPublishAgendasByStatus = async status => {
-  let unpublishedQuery;
-  if (status === STATUSES.RETRY) {
-    unpublishedQuery = queryPublishResourcesWithError(status);
-  } else {
-    unpublishedQuery = queryAgendas(status);
-  }
-  return query(unpublishedQuery);
-};
-
-export const getSignAgendasByStatus = async status => {
-  let unpublishedQuery;
-  if (status === STATUSES.RETRY) {
-    unpublishedQuery = queryPublishResourcesWithError(status);
-  } else {
-    unpublishedQuery = queryAgendasToSign(status);
-  }
-  return query(unpublishedQuery);
-};
 
 export const getPublishResourcesByStatus = async status => {
   let unpublishedQuery;
@@ -69,18 +48,17 @@ export const setResourceStatus = async (id, status, content = null) => {
 };
 
 export const insertResource = async params => {
-  const { id, type, person, version } = params;
+  const { id, type, person } = params;
   const persons = [
     "45e2842b-e4ae-4593-a66f-551b8379d6b3",
     "385893a9-75d7-4557-9977-29999044b8aa",
     "eab29f18-3a50-4a89-842a-2255c8711ce6"
   ];
-  const insertResourceQuery = insertQuery(
+  const insertResourceQuery = insertAgendaQuery(
     uuidv4(),
     id === null ? uuidv4() : id,
     person === null ? uuidv4() : persons[person],
-    type === "publish" ? "PublishedResource" : "SignedResource",
-    version
+    type === "publish" ? "PublishedResource" : "SignedResource"
   );
   await update(insertResourceQuery);
 };
@@ -104,11 +82,9 @@ export const getByStatus = async status => {
     id: resource.s.value,
     content: resource.content.value,
     signatory: resource.signatory.value,
-    resourceId: resource.publishedResource
-      ? resource.publishedResource.value
-      : null,
+    resourceId: resource.resourceUri.value,
     timestamp: resource.timestamp.value,
-    resourceType: resource.resourceType.value,
+    resourceType: resource.type.value,
     hash: sha256(resource.content.value).toString(),
     hasError: resource.hasError ? resource.hasError.value : null,
     type

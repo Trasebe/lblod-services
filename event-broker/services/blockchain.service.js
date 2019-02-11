@@ -23,6 +23,8 @@ const generalizeToResource = resource => {
 
     const roles = resource.roles.value.split(",");
 
+    console.log(resource);
+
     return {
       id: resource.s.value,
       content: sha256(resource.content.value).toString(),
@@ -32,10 +34,8 @@ const generalizeToResource = resource => {
         secret: resource.acmIdmSecret.value,
         fullIdentifier: resource.signatory.value
       },
-      resourceId: resource.publishedResource
-        ? resource.publishedResource.value
-        : resource.signedResource.value,
-      subject: resource.resourceType.value,
+      resourceId: resource.resourceUri.value,
+      subject: resource.type.value,
       timestamp: resource.timestamp.value,
       version: 1 // resource.version.value TODO - retrieve version
     };
@@ -105,12 +105,24 @@ const notifyPublish = async (resources, count = null) => {
       const resourceObject = generalizeToResource(resource, "publish"); // TODO don't hardcode
       await callDecisionService(resourceObject, "publish", count); // TODO don't hardcode
     } catch (e) {
-      await sparQLService.setResourceStatus(resource.s.value, STATUSES.FAILED);
+      // await sparQLService.setResourceStatus(resource.s.value, STATUSES.FAILED);
       logger.info(
         `notifyPublish, Changed the status of resource to failed: ${e}`
       );
     }
   });
+
+  // for (const resource of resources) {
+  //   try {
+  //     const resourceObject = generalizeToResource(resource, "publish"); // TODO don't hardcode
+  //     await callDecisionService(resourceObject, "publish", count); // TODO don't hardcode
+  //   } catch (e) {
+  //     // await sparQLService.setResourceStatus(resource.s.value, STATUSES.FAILED);
+  //     logger.info(
+  //       `notifyPublish, Changed the status of resource to failed: ${e}`
+  //     );
+  //   }
+  // }
 };
 
 const notifySign = async resources => {
