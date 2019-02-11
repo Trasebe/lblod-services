@@ -105,24 +105,12 @@ const notifyPublish = async (resources, count = null) => {
       const resourceObject = generalizeToResource(resource, "publish"); // TODO don't hardcode
       await callDecisionService(resourceObject, "publish", count); // TODO don't hardcode
     } catch (e) {
-      // await sparQLService.setResourceStatus(resource.s.value, STATUSES.FAILED);
+      await sparQLService.setResourceStatus(resource.s.value, STATUSES.FAILED);
       logger.info(
         `notifyPublish, Changed the status of resource to failed: ${e}`
       );
     }
   });
-
-  // for (const resource of resources) {
-  //   try {
-  //     const resourceObject = generalizeToResource(resource, "publish"); // TODO don't hardcode
-  //     await callDecisionService(resourceObject, "publish", count); // TODO don't hardcode
-  //   } catch (e) {
-  //     // await sparQLService.setResourceStatus(resource.s.value, STATUSES.FAILED);
-  //     logger.info(
-  //       `notifyPublish, Changed the status of resource to failed: ${e}`
-  //     );
-  //   }
-  // }
 };
 
 const notifySign = async resources => {
