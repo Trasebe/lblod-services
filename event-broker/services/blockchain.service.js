@@ -23,8 +23,6 @@ const generalizeToResource = resource => {
 
     const roles = resource.roles.value.split(",");
 
-    console.log(resource);
-
     return {
       id: resource.s.value,
       content: sha256(resource.content.value).toString(),
