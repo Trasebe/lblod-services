@@ -1,6 +1,6 @@
 import requestPromise from "request-promise";
 import httpStatus from "http-status";
-import { isEmpty } from "lodash";
+import { isEmpty, chunk } from "lodash";
 import config from "../../config/config";
 
 import logger from "../../config/Log";
@@ -24,13 +24,21 @@ const notify = async (req, res, next) => {
     logger.info(`${publishedResources.length} resources ready to be published`);
     logger.info(`${signedResources.length} resources ready to be signed`);
 
+    const publishChunks = chunk(publishedResources, 20);
+    const signChunks = chunk(signedResources, 20);
+
     if (!isEmpty(publishedResources)) {
-      await blockchainService.setToPublishing(publishedResources);
-      blockchainService.notifyPublish(publishedResources);
+      publishChunks.forEach(async resourceChunk => {
+        await blockchainService.setToPublishing(resourceChunk);
+        blockchainService.notifyPublish(resourceChunk);
+      });
     }
+
     if (!isEmpty(signedResources)) {
-      await blockchainService.setToPublishing(signedResources);
-      blockchainService.notifySign(signedResources);
+      signChunks.forEach(async resourceChunk => {
+        await blockchainService.setToPublishing(resourceChunk);
+        blockchainService.notifySign(resourceChunk);
+      });
     }
 
     res.status(httpStatus.OK);

@@ -83,11 +83,11 @@ FILTER(?type IN (sign:PublishedResource))
 export const queryPublishResourcesWithError = status => `PREFIX sign: <http://mu.semte.ch/vocabularies/ext/signing/>
 PREFIX ext: <http://mu.semte.ch/vocabularies/ext/>
 PREFIX dct: <http://purl.org/dc/terms/>
-SELECT DISTINCT ?s ?content ?signatory ?acmIdmSecret
-       ?timestamp ?resourceType ?resourceUri ?hasError
+SELECT DISTINCT ?type ?content ?signatory ?acmIdmSecret
+       ?timestamp (?resource) as $s ?resourceUri ?hasError
        (GROUP_CONCAT(DISTINCT ?role; SEPARATOR = ',') as ?roles)
 WHERE {
-  ?s a sign:PublishedResource;
+  ?resource a ?type;
        sign:text ?content;
        sign:signatory ?signatory;
        sign:signatoryRoles ?role;
@@ -97,17 +97,17 @@ WHERE {
        dct:subject  ?resourceUri;
        sign:status
 <http://mu.semte.ch/vocabularies/ext/signing/publication-status/${status}>.
-  ?resourceUri a ?resourceType.
+FILTER(?type IN (sign:PublishedResource))
 }`;
 
 export const querySignResourcesWithError = status => `PREFIX sign: <http://mu.semte.ch/vocabularies/ext/signing/>
 PREFIX ext: <http://mu.semte.ch/vocabularies/ext/>
 PREFIX dct: <http://purl.org/dc/terms/>
-SELECT DISTINCT ?s ?content ?signatory ?acmIdmSecret
-       ?timestamp ?resourceType ?resourceUri ?hasError
+SELECT DISTINCT ?type ?content ?signatory ?acmIdmSecret
+       ?timestamp (?resource) as $s ?resourceUri ?hasError
        (GROUP_CONCAT(DISTINCT ?role; SEPARATOR = ',') as ?roles)
 WHERE {
-  ?s a sign:SignedResource;
+  ?resource a ?type;
        sign:text ?content;
        sign:signatory ?signatory;
        sign:signatoryRoles ?role;
@@ -117,7 +117,7 @@ WHERE {
        dct:subject  ?resourceUri;
        sign:status
 <http://mu.semte.ch/vocabularies/ext/signing/publication-status/${status}>.
-  ?resourceUri a ?resourceType.
+FILTER(?type IN (sign:SignedResource))
 }`;
 
 export const querySignResources = status => `PREFIX sign: <http://mu.semte.ch/vocabularies/ext/signing/>
