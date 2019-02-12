@@ -10,7 +10,14 @@ const publish = async (req, res, next) => {
     const result = await decisionService.Publish(resource);
     res.status(httpStatus.OK).json({ result });
   } catch (e) {
-    next(e);
+    if (e.error && e.error.errors) {
+      const unifiedErrorMessage = e.error.errors
+        .map(error => error.title)
+        .join(" and ");
+      next({ message: unifiedErrorMessage });
+    }
+
+    next({ message: e.message });
   }
 };
 

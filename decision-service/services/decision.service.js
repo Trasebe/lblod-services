@@ -29,10 +29,8 @@ const Publish = async resource => {
     logger.info("Resource was succesfully published to the blockchain!");
     return result;
   } catch (e) {
-    console.log(e);
-    console.log(e.message);
     logger.info(`Something went wrong in decision.service.js: ${e}`);
-    throw new Error(e);
+    throw e;
   }
 };
 

@@ -37,9 +37,13 @@ const create = async (req, res, next) => {
       .json({ encryptedCert, encryptedKey, encryptionKey: key });
   } catch (e) {
     logger.info(
-      `Error happened in createAndRetrieve.controller.js (authMicroservice): ${e}`
+      `Error happened in createAndRetrieve.controller.js (authMicroservice): ${
+        e.message
+      }`
     );
-    next(e);
+
+    const message = e.message.replace(/"/g, "");
+    next({ message });
   }
 };
 

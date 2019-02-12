@@ -163,8 +163,6 @@ const deleteResource = async id => {
 };
 
 export const setResourceStatusRetry = async (id, e, count) => {
-  console.log("dggdg");
-  console.log(e.message);
   const retryResourceQuery = retryQuery(
     id,
     count,

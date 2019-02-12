@@ -8,23 +8,21 @@ const register = async (user, secret = null) => {
   if (!secret) {
     logger.info("Creating secret");
     // eslint-disable-next-line no-param-reassign
-    secret = await fabricCaClient
-      .register(
-        {
-          role: user.role,
-          enrollmentID: user.username,
-          affiliation: user.affiliation,
-          attrs: [
-            {
-              name: "ID",
-              value: user.id,
-              ecert: true
-            }
-          ]
-        },
-        app.getAdminUser()
-      )
-      .catch(err => Promise.reject(new Error(`Failed to register: ${err}`)));
+    secret = await fabricCaClient.register(
+      {
+        role: user.role,
+        enrollmentID: user.username,
+        affiliation: user.affiliation,
+        attrs: [
+          {
+            name: "ID",
+            value: user.id,
+            ecert: true
+          }
+        ]
+      },
+      app.getAdminUser()
+    );
   }
 
   logger.info("Enrolling user on the fabric network");
