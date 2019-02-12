@@ -61,7 +61,7 @@ class HomePage extends Component {
   };
 
   setup = async () => {
-    await this.chainService.setup(200);
+    await this.chainService.setup(20);
     await this.getAllDecisions();
   };
 

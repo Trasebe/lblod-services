@@ -100,7 +100,7 @@ const setToPublishing = async resources => {
 };
 
 const notifyPublish = async (resources, count = null) => {
-  resources.forEach(async resource => {
+  for (const resource of resources) {
     try {
       const resourceObject = generalizeToResource(resource, "publish"); // TODO don't hardcode
       await callDecisionService(resourceObject, "publish", count); // TODO don't hardcode
@@ -110,7 +110,7 @@ const notifyPublish = async (resources, count = null) => {
         `notifyPublish, Changed the status of resource to failed: ${e}`
       );
     }
-  });
+  }
 };
 
 const notifySign = async resources => {

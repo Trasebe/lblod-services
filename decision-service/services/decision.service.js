@@ -9,11 +9,6 @@ const Publish = async resource => {
     const { content, resourceId, oit, timestamp, subject, version } = resource;
     const mockLimitedSigners = 2;
 
-    // TODO express-validation
-    if (!content || !resourceId || !oit || !timestamp || !subject) {
-      throw new Error("Predefined resource model expectation was not met!");
-    }
-
     const user = await decisionHelper.getUser(oit);
 
     // SIGN TRANSACTION
