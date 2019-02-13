@@ -60,8 +60,8 @@ const Sign = async resource => {
     logger.info("Resource was succesfully published to the blockchain!");
     return result;
   } catch (e) {
-    logger.info(`Something went wrong: ${e}`);
-    throw new Error(e);
+    logger.info(`Something went wrong in decision.service.js: ${e}`);
+    throw e;
   }
 };
 

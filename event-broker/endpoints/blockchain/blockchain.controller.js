@@ -1,6 +1,6 @@
 import requestPromise from "request-promise";
 import httpStatus from "http-status";
-import { isEmpty, chunk } from "lodash";
+import { isEmpty, chunk, uniqBy, difference } from "lodash";
 import config from "../../config/config";
 
 import logger from "../../config/Log";
@@ -8,6 +8,27 @@ import * as sparQLService from "../../services/sparql.service";
 import blockchainService from "../../services/blockchain.service";
 
 import { STATUSES } from "../../utils/constants";
+
+const TYPES = {
+  PUBLISH: "publish",
+  SIGN: "sign"
+};
+
+const handleNotify = async (resources, type, unique = false) => {
+  const publishChunks = chunk(resources, 20);
+
+  const promises = publishChunks.map(async resourceChunk => {
+    if (type === TYPES.PUBLISH) {
+      return blockchainService.notifyPublish(resourceChunk);
+    }
+
+    return blockchainService.notifySign(resourceChunk);
+  });
+
+  if (unique) {
+    await Promise.all(promises);
+  }
+};
 
 // has no dependencies - only internal logging needed
 const notify = async (req, res, next) => {
@@ -24,21 +45,35 @@ const notify = async (req, res, next) => {
     logger.info(`${publishedResources.length} resources ready to be published`);
     logger.info(`${signedResources.length} resources ready to be signed`);
 
-    const publishChunks = chunk(publishedResources, 20);
-    const signChunks = chunk(signedResources, 20);
+    await blockchainService.setToPublishing(publishedResources);
+    await blockchainService.setToPublishing(signedResources);
 
-    if (!isEmpty(publishedResources)) {
-      publishChunks.forEach(async resourceChunk => {
-        await blockchainService.setToPublishing(resourceChunk);
-        blockchainService.notifyPublish(resourceChunk);
-      });
+    const uniqPublishers = uniqBy(
+      publishedResources,
+      resource => resource.signatory.value
+    );
+    const uniqPublishersDiff = difference(publishedResources, uniqPublishers);
+
+    const uniqSigners = uniqBy(
+      signedResources,
+      resource => resource.signatory.value
+    );
+    const uniqSignersDiff = difference(signedResources, uniqSigners);
+
+    if (!isEmpty(uniqPublishers)) {
+      await handleNotify(uniqPublishers, TYPES.PUBLISH, true);
     }
 
-    if (!isEmpty(signedResources)) {
-      signChunks.forEach(async resourceChunk => {
-        await blockchainService.setToPublishing(resourceChunk);
-        blockchainService.notifySign(resourceChunk);
-      });
+    if (!isEmpty(uniqSigners)) {
+      await handleNotify(uniqSigners, TYPES.SIGN, true);
+    }
+
+    if (!isEmpty(uniqPublishersDiff)) {
+      handleNotify(uniqPublishersDiff, TYPES.PUBLISH);
+    }
+
+    if (!isEmpty(uniqSignersDiff)) {
+      handleNotify(uniqSignersDiff, TYPES.SIGN);
     }
 
     res.status(httpStatus.OK);
