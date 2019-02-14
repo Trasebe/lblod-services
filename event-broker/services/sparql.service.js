@@ -6,7 +6,6 @@ import { STATUSES } from "../utils/constants";
 
 import {
   updateQuery,
-  insertQuery,
   queryPublishResources,
   querySignResources,
   querySignResourcesWithError,
@@ -67,7 +66,7 @@ export const insertRandomResource = async () => {
   const insertResourceQuery = insertAgendaQuery(
     uuidv4(),
     uuidv4(),
-    uuidv4(),
+    `${Math.random()}${uuidv4()}`,
     "PublishedResource"
   );
   await update(insertResourceQuery);
@@ -167,7 +166,7 @@ export const setResourceStatusRetry = async (id, e, count) => {
     id,
     count,
     uuidv4(),
-    e.error.errors[0].title // TODO fix error
+    e.error.errors ? e.error.errors[0].title : "Unknown error" // TODO fix error
   );
   await update(retryResourceQuery);
 };

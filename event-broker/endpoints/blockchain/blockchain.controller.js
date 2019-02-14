@@ -15,7 +15,7 @@ const TYPES = {
 };
 
 const handleNotify = async (resources, type, unique = false) => {
-  const x = Math.ceil(resources.length / 8);
+  const x = Math.ceil(resources.length / 5);
   const publishChunks = chunk(resources, x);
 
   const promises = publishChunks.map(async resourceChunk => {
