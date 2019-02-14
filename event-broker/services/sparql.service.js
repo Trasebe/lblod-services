@@ -6,7 +6,6 @@ import { STATUSES } from "../utils/constants";
 
 import {
   updateQuery,
-  insertQuery,
   queryPublishResources,
   querySignResources,
   querySignResourcesWithError,
@@ -16,29 +15,8 @@ import {
   queryPublishResourcesWithError,
   queryErrors,
   deleteQueryErrors,
-  queryAgendas,
-  queryAgendasToSign
+  insertAgendaQuery
 } from "../utils/queries";
-
-export const getPublishAgendasByStatus = async status => {
-  let unpublishedQuery;
-  if (status === STATUSES.RETRY) {
-    unpublishedQuery = queryPublishResourcesWithError(status);
-  } else {
-    unpublishedQuery = queryAgendas(status);
-  }
-  return query(unpublishedQuery);
-};
-
-export const getSignAgendasByStatus = async status => {
-  let unpublishedQuery;
-  if (status === STATUSES.RETRY) {
-    unpublishedQuery = queryPublishResourcesWithError(status);
-  } else {
-    unpublishedQuery = queryAgendasToSign(status);
-  }
-  return query(unpublishedQuery);
-};
 
 export const getPublishResourcesByStatus = async status => {
   let unpublishedQuery;
@@ -69,75 +47,29 @@ export const setResourceStatus = async (id, status, content = null) => {
 };
 
 export const insertResource = async params => {
-  const { id, type, person, version } = params;
+  const { id, type, person } = params;
   const persons = [
     "45e2842b-e4ae-4593-a66f-551b8379d6b3",
     "385893a9-75d7-4557-9977-29999044b8aa",
     "eab29f18-3a50-4a89-842a-2255c8711ce6"
   ];
-  const insertResourceQuery = insertQuery(
+  const insertResourceQuery = insertAgendaQuery(
     uuidv4(),
     id === null ? uuidv4() : id,
     person === null ? uuidv4() : persons[person],
-    type === "publish" ? "PublishedResource" : "SignedResource",
-    version
+    type === "publish" ? "PublishedResource" : "SignedResource"
   );
   await update(insertResourceQuery);
 };
 
 export const insertRandomResource = async () => {
-  const insertResourceQuery = insertQuery(
+  const insertResourceQuery = insertAgendaQuery(
     uuidv4(),
     uuidv4(),
-    "uuidv44",
-    "PublishedResource",
-    1
+    `${Math.random()}${uuidv4()}`,
+    "PublishedResource"
   );
   await update(insertResourceQuery);
-};
-
-export const getByStatus = async status => {
-  const resultPublish = await getPublishResourcesByStatus(status);
-  const resultSign = await getSignResourcesByStatus(status);
-
-  const mapData = (resource, type) => ({
-    id: resource.s.value,
-    content: resource.content.value,
-    signatory: resource.signatory.value,
-    resourceId: resource.publishedResource
-      ? resource.publishedResource.value
-      : null,
-    timestamp: resource.timestamp.value,
-    resourceType: resource.resourceType.value,
-    hash: sha256(resource.content.value).toString(),
-    hasError: resource.hasError ? resource.hasError.value : null,
-    type
-  });
-
-  const publishedResources = resultPublish.results.bindings.map(
-    resource => mapData(resource, "Publishing") // TODO don't hardcode
-  );
-
-  const signedResources = resultSign.results.bindings.map(
-    resource => mapData(resource, "Signing") // TODO don't hardcode
-  );
-
-  return publishedResources.concat(signedResources);
-};
-
-const deleteResource = async id => {
-  const deleteResourceQuery = deleteQuery(id);
-  await update(deleteResourceQuery);
-};
-
-export const setResourceStatusRetry = async (id, e, count) => {
-  const retryResourceQuery = retryQuery(
-    id,
-    count,
-    uuidv4(),
-    e.error.errors[0].title
-  );
-  await update(retryResourceQuery);
 };
 
 export const getErrors = async () => {
@@ -177,6 +109,66 @@ export const getErrors = async () => {
   });
 
   return distinctErrors;
+};
+
+const getDistinct = async list => {
+  const latestErrors = await getErrors();
+  const distinctResources = [];
+  list.forEach(resource => {
+    const foundError = latestErrors.find(
+      error => error.origin === resource.id && error.id === resource.hasError
+    );
+    if (foundError) {
+      distinctResources.push(resource);
+    }
+  });
+  return distinctResources;
+};
+
+export const getByStatus = async status => {
+  const resultPublish = await getPublishResourcesByStatus(status);
+  const resultSign = await getSignResourcesByStatus(status);
+
+  const mapData = (resource, type) => ({
+    id: resource.s.value,
+    content: resource.content.value,
+    signatory: resource.signatory.value,
+    resourceId: resource.resourceUri.value,
+    timestamp: resource.timestamp.value,
+    resourceType: resource.type.value,
+    hash: sha256(resource.content.value).toString(),
+    hasError: resource.hasError ? resource.hasError.value : null,
+    type
+  });
+
+  const publishedResources = resultPublish.results.bindings.map(
+    resource => mapData(resource, "Publishing") // TODO don't hardcode
+  );
+
+  const signedResources = resultSign.results.bindings.map(
+    resource => mapData(resource, "Signing") // TODO don't hardcode
+  );
+
+  const conc = publishedResources.concat(signedResources);
+  if (status === STATUSES.RETRY) {
+    return getDistinct(conc);
+  }
+  return conc;
+};
+
+const deleteResource = async id => {
+  const deleteResourceQuery = deleteQuery(id);
+  await update(deleteResourceQuery);
+};
+
+export const setResourceStatusRetry = async (id, e, count) => {
+  const retryResourceQuery = retryQuery(
+    id,
+    count,
+    uuidv4(),
+    e.error.errors ? e.error.errors[0].title : "Unknown error" // TODO fix error
+  );
+  await update(retryResourceQuery);
 };
 
 export const reset = async () => {

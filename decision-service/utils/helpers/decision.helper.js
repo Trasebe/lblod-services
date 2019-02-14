@@ -50,13 +50,6 @@ const getUser = async oit => {
   // GET USER
   const foundUser = await userManagementervice.GetUser(oit.identifier);
 
-  console.log("found user?????? ", oit.identifier);
-  console.log("found user?????? ", foundUser);
-  console.log("found user?????? ", foundUser);
-  console.log("found user?????? ", foundUser);
-  console.log("found user?????? ", foundUser);
-  console.log("found user?????? ", foundUser);
-
   // REGISTER USER IF NULL
   if (!foundUser) {
     return userManagementervice.RegisterUser(oit);

@@ -128,8 +128,6 @@ const processTxEvent = (txId, { signedEvent = {} }) =>
           }`
         );
 
-        console.log("SUCCESESSSSSS - ", tx);
-
         resolve({
           statusCode,
           tx

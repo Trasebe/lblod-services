@@ -9,11 +9,6 @@ const Publish = async resource => {
     const { content, resourceId, oit, timestamp, subject, version } = resource;
     const mockLimitedSigners = 2;
 
-    // TODO express-validation
-    if (!content || !resourceId || !oit || !timestamp || !subject) {
-      throw new Error("Predefined resource model expectation was not met!");
-    }
-
     const user = await decisionHelper.getUser(oit);
 
     // SIGN TRANSACTION
@@ -35,7 +30,7 @@ const Publish = async resource => {
     return result;
   } catch (e) {
     logger.info(`Something went wrong in decision.service.js: ${e}`);
-    throw new Error(e);
+    throw e;
   }
 };
 
@@ -65,8 +60,8 @@ const Sign = async resource => {
     logger.info("Resource was succesfully published to the blockchain!");
     return result;
   } catch (e) {
-    logger.info(`Something went wrong: ${e}`);
-    throw new Error(e);
+    logger.info(`Something went wrong in decision.service.js: ${e}`);
+    throw e;
   }
 };
 

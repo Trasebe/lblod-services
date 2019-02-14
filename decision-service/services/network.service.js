@@ -27,7 +27,7 @@ const register = async (user, secret = null) => {
         },
         adminUser
       )
-      .catch(err => Promise.reject(new Error(`Failed to register: ${err}`)));
+      .catch(err => Promise.reject(err));
   }
 
   logger.info("Enrolling user on the fabric network");

@@ -32,10 +32,8 @@ const generalizeToResource = resource => {
         secret: resource.acmIdmSecret.value,
         fullIdentifier: resource.signatory.value
       },
-      resourceId: resource.publishedResource
-        ? resource.publishedResource.value
-        : resource.signedResource.value,
-      subject: resource.resourceType.value,
+      resourceId: resource.resourceUri.value,
+      subject: resource.type.value,
       timestamp: resource.timestamp.value,
       version: 1 // resource.version.value TODO - retrieve version
     };
@@ -100,7 +98,7 @@ const setToPublishing = async resources => {
 };
 
 const notifyPublish = async (resources, count = null) => {
-  resources.forEach(async resource => {
+  for (const resource of resources) {
     try {
       const resourceObject = generalizeToResource(resource, "publish"); // TODO don't hardcode
       await callDecisionService(resourceObject, "publish", count); // TODO don't hardcode
@@ -110,7 +108,7 @@ const notifyPublish = async (resources, count = null) => {
         `notifyPublish, Changed the status of resource to failed: ${e}`
       );
     }
-  });
+  }
 };
 
 const notifySign = async resources => {
