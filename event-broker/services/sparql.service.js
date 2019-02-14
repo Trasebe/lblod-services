@@ -167,7 +167,7 @@ export const setResourceStatusRetry = async (id, e, count) => {
     id,
     count,
     uuidv4(),
-    e.error.errors[0].title
+    e.error.errors[0].title // TODO fix error
   );
   await update(retryResourceQuery);
 };

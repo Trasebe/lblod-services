@@ -58,7 +58,9 @@ const initFabric = async () => {
   fabricClient.setStateStore(stateStore);
 
   // Set crypto keystore to storePath
-  const cryptoStore = FabricClient.newCryptoKeyStore({ path: storePath });
+  const cryptoStore = FabricClient.newCryptoKeyStore({
+    path: storePath
+  });
   cryptoSuite.setCryptoKeyStore(cryptoStore);
 
   const client = await getClientForOrg("client");
