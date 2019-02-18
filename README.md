@@ -14,12 +14,10 @@ Meer info omtrent dit project is te vinden op de Wiki pagina.
 
 ```bash
 # Clone repo
-https://github.com/VO-Blockchain/LBLOD.git
-
-# Development - seperate microservice and run
-yarn && yarn start
+git clone https://github.com/Trasebe/lblod-services.git
 
 # Development - Run the full stack
+# git clone https://github.com/lblod/app-gelinkt-notuleren.git
 # For this you need to have the project 'lblod-app-gelinkt-notuleren' next to this folder and run
-yarn && yarn start
+docker-copmpose -f docker-compose.yml -f docker-compose.demo.yml -f docker-compose.blockchain.dev up
 ```
