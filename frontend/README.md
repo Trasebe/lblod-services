@@ -1,6 +1,6 @@
-# LBLOD authentication service
+# Frontend
 
-This service is used to generate the certifiactes and pricate keys for the user.
+This service is used to view the publications on the blockchain 
 
 ## Setup
 ```bash
