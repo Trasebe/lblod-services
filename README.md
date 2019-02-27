@@ -19,5 +19,5 @@ git clone https://github.com/Trasebe/lblod-services.git
 # Development - Run the full stack
 # git clone https://github.com/lblod/app-gelinkt-notuleren.git
 # For this you need to have the project 'lblod-app-gelinkt-notuleren' next to this folder and run
-docker-copmpose -f docker-compose.yml -f docker-compose.demo.yml -f docker-compose.blockchain.dev up
+docker-compose -f docker-compose.yml -f docker-compose.demo.yml -f docker-compose.blockchain.dev.yml up
 ```

@@ -5,6 +5,8 @@ const register = async (user, secret = null) => {
   const fabricCaClient = app.getFabricCaClient();
   const fabricClient = app.getFabricClient();
 
+  // const userFromStore = await fabricClient.getUserContext(user.username, true);
+
   if (!secret) {
     logger.info("Creating secret");
     // eslint-disable-next-line no-param-reassign
