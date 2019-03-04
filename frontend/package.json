@@ -13,7 +13,7 @@
   "author": "Maurice Dalderup",
   "license": "AGPL-3.0",
   "dependencies": {
-    "antd": "3.14.0",
+    "antd": "3.14.1",
     "axios": "0.18.0",
     "babel-polyfill": "6.26.0",
     "lodash": "4.17.11",
