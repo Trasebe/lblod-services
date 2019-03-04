@@ -4,7 +4,7 @@
   "description": "ACM/IDM service",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "nyc --check-coverage --reporter=text mocha --require babel-core/register",
     "lint": "eslint --ignore-pattern '/node_modules/' .",
     "start": "node app.js"
   },
@@ -24,7 +24,12 @@
     "winston": "^3.1.0"
   },
   "devDependencies": {
+    "babel-core": "^6.26.3",
     "babel-eslint": "9.0.0",
+    "babel-preset-latest": "^6.24.1",
+    "babel-register": "^6.26.0",
+    "chai": "^4.2.0",
+    "chai-http": "^4.2.1",
     "eslint": "5.4.0",
     "eslint-config-airbnb-base": "13.1.0",
     "eslint-config-prettier": "3.0.1",
@@ -32,6 +37,13 @@
     "eslint-plugin-node": "7.0.1",
     "eslint-plugin-prettier": "2.6.2",
     "eslint-watch": "4.0.2",
+    "mocha": "^6.0.2",
+    "nyc": "^13.3.0",
     "prettier": "1.14.2"
+  },
+  "babel": {
+    "presets": [
+      "latest"
+    ]
   }
 }

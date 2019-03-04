@@ -5,7 +5,13 @@ const register = async (user, secret = null) => {
   const fabricCaClient = app.getFabricCaClient();
   const fabricClient = app.getFabricClient();
 
-  // const userFromStore = await fabricClient.getUserContext(user.username, true);
+  const userFromStore = await fabricClient.getUserContext(user.username, true);
+  if (userFromStore) {
+    return Object.assign({}, userFromStore, {
+      signedCertPEM: userFromStore.getIdentity()._certificate,
+      privateKeyPEM: userFromStore.getSigningIdentity()._signer._key.toBytes()
+    });
+  }
 
   if (!secret) {
     logger.info("Creating secret");
