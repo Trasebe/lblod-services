@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import { isEmpty } from "lodash";
+import { isEmpty, sortBy } from "lodash";
 
 import "./DataDisplay.css";
 
@@ -26,7 +26,7 @@ const DataDisplay = ({ asset, title }) => (
           </thead>
           <tbody>
             {asset && !asset.msg
-              ? asset.map((element, index) => (
+              ? sortBy(asset, a => a.timestamp).map((element, index) => (
                   <tr key={`table-${index}`}>
                     <td>{element.id}</td>
                     <td>{element.err}</td>

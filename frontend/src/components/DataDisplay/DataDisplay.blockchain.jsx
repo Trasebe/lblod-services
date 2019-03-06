@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { sortBy } from "lodash";
 
 import "./DataDisplay.css";
 
@@ -29,7 +30,7 @@ const DataDisplay = ({ homescreen, asset, title, history }) => (
           </thead>
           <tbody>
             {asset && !asset.msg
-              ? asset.map((element, index) => (
+              ? sortBy(asset, a => a.timestamp).map((element, index) => (
                   <tr
                     key={`table-${index}`}
                     onClick={() => {
