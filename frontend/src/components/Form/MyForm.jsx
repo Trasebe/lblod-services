@@ -95,7 +95,8 @@ class MyForm extends Component {
             label={field.label}
             validateStatus={valueError ? "error" : ""}
             help={valueError || ""}
-            key={`${index}-form`}>
+            key={`${index}-form`}
+          >
             {getFieldDecorator(field.label, {
               rules: [
                 { required: field.required, message: "Please input a value!" }
@@ -119,7 +120,8 @@ class MyForm extends Component {
             })(
               <Select
                 placeholder="Selecteer een attribuut"
-                initialValue={dropdown[0]}>
+                initialValue={dropdown[0]}
+              >
                 {dropdown.map((val, index) => (
                   <Select.Option key={`${index}-${val}`} value={val}>
                     {val}
@@ -134,7 +136,8 @@ class MyForm extends Component {
           <Button
             type="primary"
             htmlType="submit"
-            disabled={hasErrors(getFieldsError())}>
+            disabled={hasErrors(getFieldsError())}
+          >
             {btnText}
           </Button>
         </FormItem>

@@ -15,18 +15,18 @@ const TYPES = {
 };
 
 const handleNotify = async (resources, type, unique = false) => {
-  const {
-    results: { bindings: publishedResources }
-  } = await sparQLService.getPublishResourcesByStatus(STATUSES.PUBLISHING);
-  const {
-    results: { bindings: signedResources }
-  } = await sparQLService.getSignResourcesByStatus(STATUSES.PUBLISHING);
+  // TODO filter ANYTHING already in publishing state
+  // const func =
+  //   type === TYPES.PUBLISH
+  //     ? sparQLService.getPublishResourcesByStatus(STATUSES.PUBLISHING)
+  //     : sparQLService.getSignResourcesByStatus(STATUSES.PUBLISHING);
 
-  const filteredResources = resources.reduce((r, e) => {
-    if (!publishedResources.includes(e)) return Object.assign({}, r, e);
-    if (!signedResources.includes(e)) return Object.assign({}, r, e);
-    return r;
-  }, {});
+  // const funcResult = await func();
+  // const filteredResources = resources.reduce((r, e) => {
+  //   if (!publishedResources.includes(e)) return Object.assign({}, r, e);
+  //   if (!signedResources.includes(e)) return Object.assign({}, r, e);
+  //   return r;
+  // }, {});
 
   // console.log(filteredResources);
   // console.log("=====");
@@ -78,72 +78,48 @@ const notify = async (req, res, next) => {
     // All non-unique signers, which can be handled async
     const uniqSignersDiff = difference(signedResources, uniqSigners);
 
-    // Filter currently pending resources to avoid the creation of 2 objects for a new resource
-    // const filteredUniqPublishers = uniqPublishers.filter(
-    //   o => !uniqSigners.find(o2 => o.resourceUri.value === o2.resourceUri.value)
-    // );
-
-    // const filteredUniqPublishersDiff = uniqPublishersDiff.filter(
-    //   o =>
-    //     !uniqSignersDiff.find(
-    //       o2 => o.resourceUri.value === o2.resourceUri.value
-    //     )
-    // );
-
-    // Filtering same public/signing object - need to be removed from the signing objects
-    const filteredUniqPublishers = without(
-      uniqPublishers.map(p => p.resourceUri.value), // Looping over all unique publishing objects
-      rest(() => uniqSigners.map(p => p.resourceUri.value)) // Filtering all occurencies of uniqSigning objects
+    const filteredUniqSigners = uniqSigners.filter(
+      innerB =>
+        !uniqPublishers
+          .map(innerA => innerA.resourceUri.value)
+          .includes(innerB.resourceUri.value)
     );
 
-    const x = uniqPublishers.filter(
-      o => !filteredUniqPublishers.find(o2 => o.resourceUri.value === o2)
+    const filteredUniqSignersDiff = uniqSignersDiff.filter(
+      innerB =>
+        !uniqPublishersDiff
+          .map(innerA => innerA.resourceUri.value)
+          .includes(innerB.resourceUri.value)
     );
 
-    const filteredUniqPublishersDiff = without(
-      uniqPublishersDiff.map(p => p.resourceUri.value),
-      rest(() => uniqSignersDiff.map(p => p.resourceUri.value))
-    );
-
-    const y = uniqPublishersDiff.filter(
-      o => !filteredUniqPublishersDiff.find(o2 => o.resourceUri.value === o2)
-    );
-
-    console.log("filteredUniqPublishers.length", uniqSigners.length);
-    console.log("x.lenght", x.length);
-    console.log("x.lenght", uniqSignersDiff.length);
-    console.log("y.lenght", y.length);
-
-    // TODO filter filtered from sign object
-
-    await blockchainService.setToPublishing(filteredUniqPublishers);
-    await blockchainService.setToPublishing(uniqSigners);
-    await blockchainService.setToPublishing(filteredUniqPublishersDiff);
-    await blockchainService.setToPublishing(uniqSignersDiff);
+    await blockchainService.setToPublishing(uniqPublishers);
+    await blockchainService.setToPublishing(filteredUniqSigners);
+    await blockchainService.setToPublishing(uniqPublishersDiff);
+    await blockchainService.setToPublishing(filteredUniqSignersDiff);
 
     logger.info(
-      `${filteredUniqPublishers.length +
-        filteredUniqPublishersDiff.length} resources ready to be published`
+      `${uniqPublishers.length +
+        uniqPublishersDiff.length} resources ready to be published`
     );
     logger.info(
-      `${uniqSigners.length +
-        uniqSignersDiff.length} resources ready to be signed`
+      `${filteredUniqSigners.length +
+        filteredUniqSignersDiff.length} resources ready to be signed`
     );
 
-    if (!isEmpty(filteredUniqPublishers)) {
-      await handleNotify(filteredUniqPublishers, TYPES.PUBLISH, true);
+    if (!isEmpty(uniqPublishers)) {
+      await handleNotify(uniqPublishers, TYPES.PUBLISH, true);
     }
 
-    if (!isEmpty(uniqSigners)) {
-      await handleNotify(uniqSigners, TYPES.SIGN, true);
+    if (!isEmpty(filteredUniqSigners)) {
+      await handleNotify(filteredUniqSigners, TYPES.SIGN, true);
     }
 
-    if (!isEmpty(filteredUniqPublishersDiff)) {
-      handleNotify(filteredUniqPublishersDiff, TYPES.PUBLISH);
+    if (!isEmpty(uniqPublishersDiff)) {
+      handleNotify(uniqPublishersDiff, TYPES.PUBLISH);
     }
 
-    if (!isEmpty(uniqSignersDiff)) {
-      handleNotify(uniqSignersDiff, TYPES.SIGN);
+    if (!isEmpty(filteredUniqSignersDiff)) {
+      handleNotify(filteredUniqSignersDiff, TYPES.SIGN);
     }
 
     res.status(httpStatus.OK);
