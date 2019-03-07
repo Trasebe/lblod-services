@@ -15,23 +15,6 @@ const TYPES = {
 };
 
 const handleNotify = async (resources, type, unique = false) => {
-  // TODO filter ANYTHING already in publishing state
-  // const func =
-  //   type === TYPES.PUBLISH
-  //     ? sparQLService.getPublishResourcesByStatus(STATUSES.PUBLISHING)
-  //     : sparQLService.getSignResourcesByStatus(STATUSES.PUBLISHING);
-
-  // const funcResult = await func();
-  // const filteredResources = resources.reduce((r, e) => {
-  //   if (!publishedResources.includes(e)) return Object.assign({}, r, e);
-  //   if (!signedResources.includes(e)) return Object.assign({}, r, e);
-  //   return r;
-  // }, {});
-
-  // console.log(filteredResources);
-  // console.log("=====");
-  // console.log(resources);
-
   const x = Math.ceil(resources.length / 5);
   const publishChunks = chunk(resources, x);
 
