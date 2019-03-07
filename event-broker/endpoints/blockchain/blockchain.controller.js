@@ -1,6 +1,6 @@
 import requestPromise from "request-promise";
 import httpStatus from "http-status";
-import { isEmpty, chunk, uniqBy, difference } from "lodash";
+import { isEmpty, chunk, uniqBy, difference, without, rest } from "lodash";
 import config from "../../config/config";
 
 import logger from "../../config/Log";
@@ -43,38 +43,66 @@ const notify = async (req, res, next) => {
       results: { bindings: signedResources }
     } = await sparQLService.getSignResourcesByStatus(STATUSES.UNPUBLISHED);
 
-    logger.info(`${publishedResources.length} resources ready to be published`);
-    logger.info(`${signedResources.length} resources ready to be signed`);
-
-    await blockchainService.setToPublishing(publishedResources);
-    await blockchainService.setToPublishing(signedResources);
-
+    // Unique publishers - awaiting action to register
     const uniqPublishers = uniqBy(
       publishedResources,
       resource => resource.signatory.value
     );
+
+    // All non-unique publishers, which can be handled async
     const uniqPublishersDiff = difference(publishedResources, uniqPublishers);
 
+    // Unique signers - awaiting action to register
     const uniqSigners = uniqBy(
       signedResources,
       resource => resource.signatory.value
     );
+
+    // All non-unique signers, which can be handled async
     const uniqSignersDiff = difference(signedResources, uniqSigners);
+
+    const filteredUniqSigners = uniqSigners.filter(
+      innerB =>
+        !uniqPublishers
+          .map(innerA => innerA.resourceUri.value)
+          .includes(innerB.resourceUri.value)
+    );
+
+    const filteredUniqSignersDiff = uniqSignersDiff.filter(
+      innerB =>
+        !uniqPublishersDiff
+          .map(innerA => innerA.resourceUri.value)
+          .includes(innerB.resourceUri.value)
+    );
+
+    await blockchainService.setToPublishing(uniqPublishers);
+    await blockchainService.setToPublishing(filteredUniqSigners);
+    await blockchainService.setToPublishing(uniqPublishersDiff);
+    await blockchainService.setToPublishing(filteredUniqSignersDiff);
+
+    logger.info(
+      `${uniqPublishers.length +
+        uniqPublishersDiff.length} resources ready to be published`
+    );
+    logger.info(
+      `${filteredUniqSigners.length +
+        filteredUniqSignersDiff.length} resources ready to be signed`
+    );
 
     if (!isEmpty(uniqPublishers)) {
       await handleNotify(uniqPublishers, TYPES.PUBLISH, true);
     }
 
-    if (!isEmpty(uniqSigners)) {
-      await handleNotify(uniqSigners, TYPES.SIGN, true);
+    if (!isEmpty(filteredUniqSigners)) {
+      await handleNotify(filteredUniqSigners, TYPES.SIGN, true);
     }
 
     if (!isEmpty(uniqPublishersDiff)) {
       handleNotify(uniqPublishersDiff, TYPES.PUBLISH);
     }
 
-    if (!isEmpty(uniqSignersDiff)) {
-      handleNotify(uniqSignersDiff, TYPES.SIGN);
+    if (!isEmpty(filteredUniqSignersDiff)) {
+      handleNotify(filteredUniqSignersDiff, TYPES.SIGN);
     }
 
     res.status(httpStatus.OK);
