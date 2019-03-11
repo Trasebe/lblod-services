@@ -12,7 +12,7 @@ let exptime;
 if (config.env === "production") {
   exptime = [30000, 120000, 300000, 600000, 1800000];
 } else {
-  exptime = [10000, 10000, 10000, 10000, 10000];
+  exptime = [3000, 3000, 3000];
 }
 
 const generalizeToResource = resource => {

@@ -40,9 +40,6 @@ describe("Decision", () => {
       .post(`/decision/publish`)
       .send(requestObject)
       .end((err, res) => {
-        console.log("err ", err);
-        console.log("res.body ", res.body);
-
         res.should.have.status(200);
         // res.body.should.not.have.property("error");
         // res.body.should.not.have.property("encryptedCert");

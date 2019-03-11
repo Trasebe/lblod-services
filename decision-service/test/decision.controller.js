@@ -1,6 +1,5 @@
 import chai, { expect, should } from "chai";
 import chaiHttp from "chai-http";
-import { random } from "lodash";
 
 // import server from "../../app";
 const server = "http://localhost:4000";
