@@ -8,6 +8,7 @@ chai.use(chaiHttp);
 
 describe("Decision", () => {
   let id;
+  let savedId;
 
   beforeEach(done => {
     id = Math.random();
@@ -28,6 +29,7 @@ describe("Decision", () => {
   });
 
   it("should publish", done => {
+    savedId = id.toString(); // id to validate
     const requestObject = {
       id: id.toString(),
       content: "randomContent",
@@ -201,6 +203,53 @@ describe("Decision", () => {
             expect(res2.body.result.statusCode).to.equal("VALID");
             done();
           });
+      });
+  });
+
+  it("should validate an object", done => {
+    const requestObject = {
+      type: {
+        type: "uri",
+        value: "http://mu.semte.ch/vocabularies/ext/signing/PublishedResource"
+      },
+      content: { type: "literal", value: "<div> rdfa stuff</div>" },
+      signatory: {
+        type: "uri",
+        value:
+          "http://data.lblod.info/id/persoon/0.7217419497796184a0cc2f6-8b4e-49ed-9fe4-044af9bf1b89"
+      },
+      acmIdmSecret: { type: "literal", value: "helloworldsecretbehere" },
+      timestamp: {
+        type: "typed-literal",
+        datatype: "http://www.w3.org/2001/XMLSchema#dateTime",
+        value: "2019-01-02T19:00:00.299Z"
+      },
+      resourceUri: {
+        type: "uri",
+        value: `http://lblod.info/prepublished-agendas/${savedId}`
+      },
+      s: {
+        type: "uri",
+        value:
+          "http://lblod.info/signed-resources/c4f4060a-fb63-4058-bb6c-beb919a04948"
+      },
+      roles: {
+        type: "literal",
+        value:
+          "GelinktNotuleren-lezer,GelinktNotuleren-ondertekenaar,GelinktNotuleren-publiceerder,GelinktNotuleren-schrijver,GelinktNotuleren-sjablonen_valideerder"
+      }
+    };
+
+    chai
+      .request(server)
+      .post(`/decision/validate`)
+      .send(requestObject)
+      .end((err, res) => {
+        res.should.have.status(200);
+        res.body.should.be.a("object").to.have.property("id");
+        res.body.should.be.a("object").to.have.property("hash");
+        res.body.should.be.a("object").to.have.property("result");
+        done();
       });
   });
 });

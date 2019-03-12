@@ -1,4 +1,5 @@
 import httpStatus from "http-status";
+import sha256 from "crypto-js/sha256";
 
 import logger from "../../config/Log";
 import decisionService from "../../services/decision.service";
@@ -43,7 +44,10 @@ const getAll = async (req, res, next) => {
 
 const validate = async (req, res, next) => {
   try {
-    const { id, hash } = req.body;
+    const resource = req.body;
+    const id = resource.resourceUri.value;
+    const hash = sha256(resource.content.value).toString();
+
     const { result, blockchainHash } = await decisionService.Validate(id, hash);
     res.status(httpStatus.OK).json({
       id,
