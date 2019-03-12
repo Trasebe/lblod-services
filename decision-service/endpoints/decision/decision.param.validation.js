@@ -18,34 +18,8 @@ export const resourceScheme = {
 
 export const validationScheme = {
   body: {
-    type: {
-      type: Joi.string().required(),
-      value: Joi.string().required()
-    },
-    content: { type: Joi.string().required(), value: Joi.string().required() },
-    signatory: {
-      type: Joi.string().required(),
-      value: Joi.string().required()
-    },
-    acmIdmSecret: {
-      type: Joi.string().required(),
-      value: Joi.string().required()
-    },
-    timestamp: {
-      type: Joi.string().required(),
-      datatype: Joi.string().required(),
-      value: Joi.string().required()
-    },
+    content: { value: Joi.string().required() },
     resourceUri: {
-      type: Joi.string().required(),
-      value: Joi.string().required()
-    },
-    s: {
-      type: Joi.string().required(),
-      value: Joi.string().required()
-    },
-    roles: {
-      type: Joi.string().required(),
       value: Joi.string().required()
     }
   }
