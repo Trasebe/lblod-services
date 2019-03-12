@@ -12,7 +12,7 @@ let exptime;
 if (config.env === "production") {
   exptime = [30000, 120000, 300000, 600000, 1800000];
 } else {
-  exptime = [10000, 10000, 10000, 10000, 10000];
+  exptime = [3000, 3000, 3000];
 }
 
 const generalizeToResource = resource => {
@@ -124,7 +124,7 @@ const notifySign = async resources => {
 };
 
 const getInfoFromResource = resource => {
-  const id = resource.s.value;
+  const id = resource.resourceUri.value;
   const hash = sha256(resource.content.value).toString();
   return {
     id,

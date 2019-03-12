@@ -84,6 +84,7 @@ const notify = async (req, res, next) => {
       `${uniqPublishers.length +
         uniqPublishersDiff.length} resources ready to be published`
     );
+
     logger.info(
       `${filteredUniqSigners.length +
         filteredUniqSignersDiff.length} resources ready to be signed`
@@ -133,7 +134,7 @@ const validate = async (req, res, next) => {
       for (const resource of resources) {
         const { id, hash } = blockchainService.getInfoFromResource(resource);
         const response = await requestPromise.post(
-          `${config.decisionService}/decision/validate`,
+          `${config.decisionService}/decision/validate`, // TODO remove decisionService from config
           {
             method: "POST",
             body: { id, hash },

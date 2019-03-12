@@ -4,7 +4,7 @@
   "description": "lblod decision service",
   "main": "app.js",
   "scripts": {
-    "test": "mocha --require babel-core/register",
+    "test": "mocha --require babel-core/register --timeout 30000",
     "lint": "eslint --ignore-pattern '/node_modules/' .",
     "start": "node app.js"
   },
@@ -33,6 +33,7 @@
   "devDependencies": {
     "babel-core": "6.26.3",
     "babel-eslint": "9.0.0",
+    "babel-polyfill": "^6.26.0",
     "babel-preset-latest": "6.24.1",
     "babel-register": "6.26.0",
     "chai": "4.2.0",
