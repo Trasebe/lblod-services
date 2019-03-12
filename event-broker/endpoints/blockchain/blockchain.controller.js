@@ -106,7 +106,7 @@ const notify = async (req, res, next) => {
       handleNotify(filteredUniqSignersDiff, TYPES.SIGN);
     }
 
-    res.status(httpStatus.OK);
+    res.sendStatus(httpStatus.OK);
   } catch (e) {
     logger.error(`Error during notify ${e}`);
     next(e);
@@ -179,7 +179,7 @@ const setup = async (req, res, next) => {
   try {
     logger.info("Adding resource");
     await sparQLService.insertResource(req.body);
-    res.status(httpStatus.OK).send("Object was succesfully inserted");
+    res.sendStatus(httpStatus.OK);
   } catch (e) {
     logger.error(e);
     next(e);
@@ -189,7 +189,7 @@ const setup = async (req, res, next) => {
 const reset = async (req, res, next) => {
   try {
     await sparQLService.reset();
-    res.status(httpStatus.OK).send("SPARQL database was reset succcesfully");
+    res.sendStatus(httpStatus.OK);
   } catch (e) {
     logger.error(e);
     next(e);
@@ -201,10 +201,14 @@ const setupByNumber = async (req, res, next) => {
     const { amount } = req.body;
     logger.info(`Adding ${amount} resources`);
     for (let index = 0; index < amount; index += 1) {
-      await sparQLService.insertRandomResource();
+      if (index % 2 === 0) {
+        await sparQLService.insertRandomResource("SignedResource");
+      } else {
+        await sparQLService.insertRandomResource();
+      }
     }
 
-    res.status(httpStatus.OK).send("Object was succesfully inserted");
+    res.sendStatus(httpStatus.OK);
   } catch (e) {
     logger.error(e);
     next(e);
