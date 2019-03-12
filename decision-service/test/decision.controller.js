@@ -8,6 +8,7 @@ chai.use(chaiHttp);
 
 describe("Decision", () => {
   let id;
+  let savedId;
 
   beforeEach(done => {
     id = Math.random();
@@ -28,6 +29,7 @@ describe("Decision", () => {
   });
 
   it("should publish", done => {
+    savedId = id.toString(); // id to validate
     const requestObject = {
       id: id.toString(),
       content: "randomContent",
@@ -201,6 +203,27 @@ describe("Decision", () => {
             expect(res2.body.result.statusCode).to.equal("VALID");
             done();
           });
+      });
+  });
+
+  it("should validate an object", done => {
+    const requestObject = {
+      content: { value: "<div> rdfa stuff</div>" },
+      resourceUri: {
+        value: `http://lblod.info/prepublished-agendas/${savedId}`
+      }
+    };
+
+    chai
+      .request(server)
+      .post(`/decision/validate`)
+      .send(requestObject)
+      .end((err, res) => {
+        res.should.have.status(200);
+        res.body.should.be.a("object").to.have.property("id");
+        res.body.should.be.a("object").to.have.property("hash");
+        res.body.should.be.a("object").to.have.property("result");
+        done();
       });
   });
 });

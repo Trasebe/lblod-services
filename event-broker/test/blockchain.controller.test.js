@@ -32,11 +32,11 @@ describe("Decision", () => {
       });
   });
 
-  it("should notify random 20 resources", done => {
+  it("should notify random 7 resources", done => {
     chai
       .request(server)
       .post(`/setupByNumber`)
-      .send({ amount: 20 })
+      .send({ amount: 7 })
       .end((err, res) => {
         res.should.have.status(200);
         chai
@@ -46,6 +46,17 @@ describe("Decision", () => {
             res2.should.have.status(200);
             done();
           });
+      });
+  });
+
+  it("should validate all resources", done => {
+    chai
+      .request(server)
+      .post(`/validateAll`)
+      .end((err, res) => {
+        expect(res.body.responses.length).to.above(0);
+        res.should.have.status(200);
+        done();
       });
   });
 });

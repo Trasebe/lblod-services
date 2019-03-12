@@ -123,15 +123,6 @@ const notifySign = async resources => {
   }
 };
 
-const getInfoFromResource = resource => {
-  const id = resource.resourceUri.value;
-  const hash = sha256(resource.content.value).toString();
-  return {
-    id,
-    hash
-  };
-};
-
 const getDistinctResources = resources => {
   const distinctResources = [];
 
@@ -151,6 +142,5 @@ export default {
   setToPublishing,
   notifyPublish,
   notifySign,
-  getInfoFromResource,
   getDistinctResources
 };

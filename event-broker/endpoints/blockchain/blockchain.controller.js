@@ -132,12 +132,11 @@ const validate = async (req, res, next) => {
 
       // eslint-disable-next-line
       for (const resource of resources) {
-        const { id, hash } = blockchainService.getInfoFromResource(resource);
         const response = await requestPromise.post(
           `${config.decisionService}/decision/validate`, // TODO remove decisionService from config
           {
             method: "POST",
-            body: { id, hash },
+            body: resource,
             json: true
           }
         );

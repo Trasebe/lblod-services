@@ -18,8 +18,10 @@ export const resourceScheme = {
 
 export const validationScheme = {
   body: {
-    id: Joi.string().required(),
-    hash: Joi.string().required()
+    content: { value: Joi.string().required() },
+    resourceUri: {
+      value: Joi.string().required()
+    }
   }
 };
 
