@@ -6,7 +6,7 @@ import logger from "../config/Log";
 import config from "../config/config";
 import * as sparQLService from "./sparql.service";
 
-import { STATUSES } from "../utils/constants";
+import { STATUSES, TYPES, TYPE_MAPPING } from "../utils/constants";
 
 let exptime;
 if (config.env === "production") {
@@ -97,6 +97,19 @@ const setToPublishing = async resources => {
   }
 };
 
+const notify = async resources => {
+  for (const resource of resources) {
+    try {
+      const fcn = TYPE_MAPPING[resource.type.value];
+      const resourceObject = generalizeToResource(resource);
+      await callDecisionService(resourceObject, fcn);
+    } catch (e) {
+      await sparQLService.setResourceStatus(resource.s.value, STATUSES.FAILED);
+      logger.info(`Changed the status of resource to failed: ${e}`);
+    }
+  }
+};
+
 const notifyPublish = async (resources, count = null) => {
   for (const resource of resources) {
     try {
@@ -142,5 +155,6 @@ export default {
   setToPublishing,
   notifyPublish,
   notifySign,
-  getDistinctResources
+  getDistinctResources,
+  notify
 };

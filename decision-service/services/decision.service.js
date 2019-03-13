@@ -34,7 +34,7 @@ const Publish = async resource => {
   }
 };
 
-const Sign = async resource => {
+const Sign = async (resource, burn) => {
   try {
     // GET USERID OUT OF RESOURCE
     const { content, resourceId, oit, timestamp, subject, version } = resource;
@@ -49,7 +49,8 @@ const Sign = async resource => {
       timestamp,
       limitedSigners: mockLimitedSigners,
       subject,
-      version
+      version,
+      burn
     };
 
     const result = await signingService.SignTransaction(

@@ -24,9 +24,11 @@ const publish = async (req, res, next) => {
 
 const sign = async (req, res, next) => {
   try {
-    logger.info("Signing resources..");
     const resource = req.body;
-    const result = await decisionService.Sign(resource);
+    const { burn } = req.query;
+    logger.info(`Signing resources to ${burn ? "burn" : "approve"}`);
+
+    const result = await decisionService.Sign(resource, burn);
     res.status(httpStatus.OK).json({ result });
   } catch (e) {
     next(e);
