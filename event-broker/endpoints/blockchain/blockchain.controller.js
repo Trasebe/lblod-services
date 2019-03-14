@@ -1,15 +1,6 @@
 import requestPromise from "request-promise";
 import httpStatus from "http-status";
-import {
-  isEmpty,
-  chunk,
-  uniqBy,
-  difference,
-  matches,
-  filter,
-  without,
-  rest
-} from "lodash";
+import { isEmpty, chunk, uniqBy, difference } from "lodash";
 import config from "../../config/config";
 
 import logger from "../../config/Log";
@@ -22,7 +13,7 @@ const handleNotify = async (resources, unique = false) => {
   const x = Math.ceil(resources.length / 5);
   const publishChunks = chunk(resources, x);
 
-  const promises = publishChunks.map(async resourceChunk =>
+  const promises = publishChunks.map(resourceChunk =>
     blockchainService.notify(resourceChunk)
   );
 
