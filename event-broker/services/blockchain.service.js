@@ -8,12 +8,10 @@ import * as sparQLService from "./sparql.service";
 
 import { STATUSES, TYPES, TYPE_MAPPING } from "../utils/constants";
 
-let exptime;
-if (config.env === "production") {
-  exptime = [30000, 120000, 300000, 600000, 1800000];
-} else {
-  exptime = [3000, 3000, 3000];
-}
+const expireTime =
+  config.env === "production"
+    ? [30000, 120000, 300000, 600000, 1800000]
+    : [3000, 3000];
 
 const generalizeToResource = resource => {
   try {
@@ -61,14 +59,14 @@ const callDecisionService = async (resource, func, count = null) => {
       await sparQLService.setResourceStatusRetry(resource.id, e, newCount);
       setTimeout(
         callDecisionService,
-        exptime[newCount - 1],
+        expireTime[newCount - 1],
         resource,
         func,
         newCount
       );
       logger.info(`Changed the status of resource to waiting_for_retry: ${e}`);
       logger.info(
-        `Timeout has been set for: ${exptime[newCount - 1] / 1000} seconds`
+        `Timeout has been set for: ${expireTime[newCount - 1] / 1000} seconds`
       );
     } else {
       await sparQLService.setResourceStatus(resource.id, STATUSES.FAILED);

@@ -78,13 +78,13 @@ export const insertResource = async params => {
   await update(insertResourceQuery);
 };
 
-export const insertRandomResource = async () => {
+export const insertRandomResource = async (type, resourceUri) => {
   const types = ["PublishedResource", "SignedResource", "BurnedResource"];
   const insertResourceQuery = insertAgendaQuery(
     uuidv4(), // id
-    uuidv4(), // resourceUri
-    "signatory", // `${Math.random()}${uuidv4()}`, // signatory
-    sample(types) // Type
+    resourceUri || uuidv4(), // resourceUri
+    `${Math.random()}${uuidv4()}`, // signatory
+    type || sample(types) // Type
   );
   await update(insertResourceQuery);
 };

@@ -60,10 +60,10 @@ const notify = async (req, res, next) => {
         nonUniqueResources.length} resources ready to be published/signed/burned`
     );
 
-    console.log("result", result.length);
-    console.log("resources", resources.length);
-    console.log("uniqueResources", uniqueResources.length);
-    console.log("non-unique ", nonUniqueResources.length);
+    // console.log("result", result.length);
+    // console.log("resources", resources.length);
+    // console.log("uniqueResources", uniqueResources.length);
+    // console.log("non-unique ", nonUniqueResources.length);
 
     if (!isEmpty(uniqueResources)) {
       await handleNotify(uniqueResources, true);
@@ -73,15 +73,6 @@ const notify = async (req, res, next) => {
       handleNotify(nonUniqueResources);
     }
 
-    console.log("============");
-    console.log("============");
-    console.log("============");
-    console.log("============");
-    console.log("SENDING OK");
-    console.log("============");
-    console.log("============");
-    console.log("============");
-    console.log("============");
     res.sendStatus(httpStatus.OK);
   } catch (e) {
     logger.error(`Error during notify ${e}`);
@@ -177,7 +168,10 @@ const setupByNumber = async (req, res, next) => {
     logger.info(`Adding ${amount} resources`);
     for (let index = 0; index < amount; index += 1) {
       if (index % 2 === 0) {
-        await sparQLService.insertRandomResource("SignedResource");
+        const uri = Math.random().toString();
+        await sparQLService.insertRandomResource("PublishedResource", uri);
+        await sparQLService.insertRandomResource("SignedResource", uri);
+        await sparQLService.insertRandomResource("SignedResource", uri);
       } else {
         await sparQLService.insertRandomResource();
       }
