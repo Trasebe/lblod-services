@@ -46,7 +46,7 @@
     "eslint-plugin-react": "7.10.0",
     "husky": "0.14.3",
     "jest": "23.6.0",
-    "parcel-bundler": "1.12.1",
+    "parcel-bundler": "1.12.2",
     "prettier": "1.16.4",
     "raf": "3.4.1",
     "react-test-renderer": "16.8.4"
