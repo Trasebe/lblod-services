@@ -1,5 +1,7 @@
 ## Decision Service
 
+---
+
 ### publish
 
 endpoint: POST `/decision/publish`
@@ -86,3 +88,29 @@ body:
 ```
     id: string
 ```
+
+---
+
+## Event Broker
+
+---
+
+### notify
+
+endpoint: POST `/notify`
+body:
+
+```
+{}
+```
+
+### Get Resource(s) By Status
+
+endpoint: GET `/getByStatus/:status`
+options:
+
+- unpublished
+- publishing
+- published
+- publication_failed
+- waiting_for_retry
