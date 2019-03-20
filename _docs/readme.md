@@ -8,17 +8,17 @@ endpoint: POST `/decision/publish`
 
 ```json
 {
-  "id": string,
-  "content": string,
+  "id": "string",
+  "content": "string",
   "oit": {
-    "identifier": string,
-    "roles": [string],
-    "secret": string,
-    "fullIdentifier": string
+    "identifier": "string",
+    "roles": ["string"],
+    "secret": "string",
+    "fullIdentifier": "string"
   },
-  "resourceId": string,
-  "subject": string,
-  "timestamp": string
+  "resourceId": "string",
+  "subject": "string",
+  "timestamp": "string"
 }
 ```
 
@@ -26,8 +26,8 @@ endpoint: POST `/decision/publish`
 
 ```json
 {
-  "statusCode": number,
-  "tx": string
+  "statusCode": "number",
+  "tx": "string"
 }
 ```
 
@@ -39,17 +39,17 @@ endpoint: POST `/decision/sign`
 
 ```json
 {
-  "id": string,
-  "content": string,
+  "id": "string",
+  "content": "string",
   "oit": {
-    "identifier": string,
-    "roles": [string],
-    "secret": string,
-    "fullIdentifier": string
+    "identifier": "string",
+    "roles": ["string"],
+    "secret": "string",
+    "fullIdentifier": "string"
   },
-  "resourceId": string,
-  "subject": string,
-  "timestamp": string
+  "resourceId": "string",
+  "subject": "string",
+  "timestamp": "string"
 }
 ```
 
@@ -57,8 +57,8 @@ endpoint: POST `/decision/sign`
 
 ```json
 {
-  "statusCode": number,
-  "tx": string
+  "statusCode": "number",
+  "tx": "string"
 }
 ```
 
@@ -70,17 +70,17 @@ endpoint: POST `/decision/sign?burn=true`
 
 ```json
 {
-  "id": string,
-  "content": string,
+  "id": "string",
+  "content": "string",
   "oit": {
-    "identifier": string,
-    "roles": [string],
-    "secret": string,
-    "fullIdentifier": string
+    "identifier": "string",
+    "roles": ["string"],
+    "secret": "string",
+    "fullIdentifier": "string"
   },
-  "resourceId": string,
-  "subject": string,
-  "timestamp": string
+  "resourceId": "string",
+  "subject": "string",
+  "timestamp": "string"
 }
 ```
 
@@ -88,8 +88,8 @@ endpoint: POST `/decision/sign?burn=true`
 
 ```json
 {
-  "statusCode": number,
-  "tx": string
+  "statusCode": "number",
+  "tx": "string"
 }
 ```
 
@@ -101,9 +101,9 @@ endpoint: POST `/validate`
 
 ```json
 {
-  "content": { "value": string },
+  "content": { "value": "string" },
   "resourceUri": {
-    "value": string
+    "value": "string"
   }
 }
 ```
@@ -112,10 +112,10 @@ endpoint: POST `/validate`
 
 ```json
 {
-  "id": string,
-  "hash": string,
+  "id": "string",
+  "hash": "string",
   "result": bool,
-  "blockchainHash": string
+  "blockchainHash": "string"
 }
 ```
 
@@ -127,7 +127,7 @@ endpoint: POST `/queryById`
 
 ```json
 {
-  "id": string
+  "id": "string"
 }
 ```
 
@@ -135,18 +135,18 @@ endpoint: POST `/queryById`
 
 ```json
 {
-  "id": string,
-  "hash": string,
-  "timestamp": string,
-  "limitedSigners": number,
-  "subject": string,
-  "version": number,
-  "publishStatus": string,
-  "signStatus": string,
-  "authSignatures": array<object>,
-  "burnSignatures": array<object>,
-  "docType": string,
-  "publisher": object
+  "id": "string",
+  "hash": "string",
+  "timestamp": "string",
+  "limitedSigners": "number",
+  "subject": "string",
+  "version": "number",
+  "publishStatus": "string",
+  "signStatus": "string",
+  "authSignatures": "array<object>",
+  "burnSignatures": "array<object>",
+  "docType": "string",
+  "publisher": "object"
 }
 ```
 
@@ -158,7 +158,7 @@ endpoint: POST `/queryHistory`
 
 ```json
 {
-  "id": string
+  "id": "string"
 }
 ```
 
@@ -167,18 +167,18 @@ endpoint: POST `/queryHistory`
 ```json
 [
   {
-    "id": string,
-    "hash": string,
-    "timestamp": string,
-    "limitedSigners": number,
-    "subject": string,
-    "version": number,
-    "publishStatus": string,
-    "signStatus": string,
-    "authSignatures": array<object>,
-    "burnSignatures": array<object>,
-    "docType": string,
-    "publisher": object
+    "id": "string",
+    "hash": "string",
+    "timestamp": "string",
+    "limitedSigners": "number",
+    "subject": "string",
+    "version": "number",
+    "publishStatus": "string",
+    "signStatus": "string",
+    "authSignatures": "array<object>",
+    "burnSignatures": "array<object>",
+    "docType": "string",
+    "publisher": "object"
   }
 ]
 ```
@@ -203,7 +203,7 @@ endpoint: POST `/notify`
 
 ```json
 {
-  "status": number
+  "status": "number"
 }
 ```
 
@@ -224,15 +224,15 @@ options:
 ```json
 [
   {
-    "id": string,
-    "content": string,
-    "signatory": string,
-    "resourceId": string,
-    "timestamp": string,
-    "resourceType": string,
-    "hash": string,
-    "hasError": string,
-    "type": string
+    "id": "string",
+    "content": "string",
+    "signatory": "string",
+    "resourceId": "string",
+    "timestamp": "string",
+    "resourceType": "string",
+    "hash": "string",
+    "hasError": "string",
+    "type": "string"
   }
 ]
 ```
