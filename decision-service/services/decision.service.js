@@ -24,7 +24,7 @@ const Publish = async resource => {
     const result = await signingService.SignTransaction(
       args,
       user,
-      "publishResource" // TODO don't hardcode
+      "publishResource"
     );
     logger.info("Resource was succesfully published to the blockchain!");
     return result;
@@ -56,7 +56,7 @@ const Sign = async (resource, burn) => {
     const result = await signingService.SignTransaction(
       args,
       user,
-      "signResource" // TODO don't hardcode
+      "signResource"
     );
     logger.info("Resource was succesfully published to the blockchain!");
     return result;

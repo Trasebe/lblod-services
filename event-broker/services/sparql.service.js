@@ -158,12 +158,12 @@ export const getByStatus = async status => {
     type
   });
 
-  const publishedResources = resultPublish.results.bindings.map(
-    resource => mapData(resource, "Publishing") // TODO don't hardcode
+  const publishedResources = resultPublish.results.bindings.map(resource =>
+    mapData(resource, "Publishing")
   );
 
-  const signedResources = resultSign.results.bindings.map(
-    resource => mapData(resource, "Signing") // TODO don't hardcode
+  const signedResources = resultSign.results.bindings.map(resource =>
+    mapData(resource, "Signing")
   );
 
   const conc = publishedResources.concat(signedResources);

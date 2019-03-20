@@ -188,7 +188,6 @@ const invokeOffline = async ({ txId, proposal }, privateKeyPEM, certPEM) => {
     });
 
     if (response.status !== "SUCCESS") {
-      // TODO - find out what went wrong
       throw new Error("Something went wrong");
     }
 

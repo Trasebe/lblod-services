@@ -35,6 +35,9 @@ const getIdentifier = content => {
     signatoryURI.split("/").length - 1
   ];
 
+  console.log("Current content: ", content);
+  console.log("TODO - dynamic roles using openID Ticket");
+
   // TODO dynamic role when we retrieve openID Ticket
   const role = "publisher";
   return {
