@@ -1,6 +1,6 @@
 import requestPromise from "request-promise";
 import httpStatus from "http-status";
-import { isEmpty, chunk, uniqBy, difference, without, rest } from "lodash";
+import { isEmpty, chunk, uniqBy, difference } from "lodash";
 import config from "../../config/config";
 
 import logger from "../../config/Log";
@@ -9,22 +9,13 @@ import blockchainService from "../../services/blockchain.service";
 
 import { STATUSES } from "../../utils/constants";
 
-const TYPES = {
-  PUBLISH: "publish",
-  SIGN: "sign"
-};
-
-const handleNotify = async (resources, type, unique = false) => {
+const handleNotify = async (resources, unique = false) => {
   const x = Math.ceil(resources.length / 5);
   const publishChunks = chunk(resources, x);
 
-  const promises = publishChunks.map(async resourceChunk => {
-    if (type === TYPES.PUBLISH) {
-      return blockchainService.notifyPublish(resourceChunk);
-    }
-
-    return blockchainService.notifySign(resourceChunk);
-  });
+  const promises = publishChunks.map(resourceChunk =>
+    blockchainService.notify(resourceChunk)
+  );
 
   if (unique) {
     await Promise.all(promises);
@@ -36,74 +27,41 @@ const notify = async (req, res, next) => {
   try {
     logger.info("Notified - querying resources...");
 
-    const {
-      results: { bindings: publishedResources }
-    } = await sparQLService.getPublishResourcesByStatus(STATUSES.UNPUBLISHED);
-    const {
-      results: { bindings: signedResources }
-    } = await sparQLService.getSignResourcesByStatus(STATUSES.UNPUBLISHED);
-
-    // Unique publishers - awaiting action to register
-    const uniqPublishers = uniqBy(
-      publishedResources,
-      resource => resource.signatory.value
+    const result = await sparQLService.queryAllResourcesByStatus(
+      STATUSES.UNPUBLISHED
     );
 
-    // All non-unique publishers, which can be handled async
-    const uniqPublishersDiff = difference(publishedResources, uniqPublishers);
+    // Remove multiple actions on the same object - keep these for the next iteration
+    const resources = uniqBy(result, ({ resourceUri }) => resourceUri.value);
 
-    // Unique signers - awaiting action to register
-    const uniqSigners = uniqBy(
-      signedResources,
-      resource => resource.signatory.value
+    // Unique resources - awaiting action to register
+    const uniqueResources = uniqBy(
+      resources,
+      ({ signatory }) => signatory.value
     );
 
-    // All non-unique signers, which can be handled async
-    const uniqSignersDiff = difference(signedResources, uniqSigners);
+    // All non-unique resources, which can be handled async
+    const nonUniqueResources = difference(resources, uniqueResources);
 
-    const filteredUniqSigners = uniqSigners.filter(
-      innerB =>
-        !uniqPublishers
-          .map(innerA => innerA.resourceUri.value)
-          .includes(innerB.resourceUri.value)
-    );
-
-    const filteredUniqSignersDiff = uniqSignersDiff.filter(
-      innerB =>
-        !uniqPublishersDiff
-          .map(innerA => innerA.resourceUri.value)
-          .includes(innerB.resourceUri.value)
-    );
-
-    await blockchainService.setToPublishing(uniqPublishers);
-    await blockchainService.setToPublishing(filteredUniqSigners);
-    await blockchainService.setToPublishing(uniqPublishersDiff);
-    await blockchainService.setToPublishing(filteredUniqSignersDiff);
+    await blockchainService.setToPublishing(uniqueResources);
+    await blockchainService.setToPublishing(nonUniqueResources);
 
     logger.info(
-      `${uniqPublishers.length +
-        uniqPublishersDiff.length} resources ready to be published`
+      `${uniqueResources.length +
+        nonUniqueResources.length} resources ready to be published/signed/burned`
     );
 
-    logger.info(
-      `${filteredUniqSigners.length +
-        filteredUniqSignersDiff.length} resources ready to be signed`
-    );
+    // console.log("result", result.length);
+    // console.log("resources", resources.length);
+    // console.log("uniqueResources", uniqueResources.length);
+    // console.log("non-unique ", nonUniqueResources.length);
 
-    if (!isEmpty(uniqPublishers)) {
-      await handleNotify(uniqPublishers, TYPES.PUBLISH, true);
+    if (!isEmpty(uniqueResources)) {
+      await handleNotify(uniqueResources, true);
     }
 
-    if (!isEmpty(filteredUniqSigners)) {
-      await handleNotify(filteredUniqSigners, TYPES.SIGN, true);
-    }
-
-    if (!isEmpty(uniqPublishersDiff)) {
-      handleNotify(uniqPublishersDiff, TYPES.PUBLISH);
-    }
-
-    if (!isEmpty(filteredUniqSignersDiff)) {
-      handleNotify(filteredUniqSignersDiff, TYPES.SIGN);
+    if (!isEmpty(nonUniqueResources)) {
+      handleNotify(nonUniqueResources);
     }
 
     res.sendStatus(httpStatus.OK);
@@ -201,7 +159,10 @@ const setupByNumber = async (req, res, next) => {
     logger.info(`Adding ${amount} resources`);
     for (let index = 0; index < amount; index += 1) {
       if (index % 2 === 0) {
-        await sparQLService.insertRandomResource("SignedResource");
+        const uri = Math.random().toString();
+        await sparQLService.insertRandomResource("PublishedResource", uri);
+        await sparQLService.insertRandomResource("SignedResource", uri);
+        await sparQLService.insertRandomResource("SignedResource", uri);
       } else {
         await sparQLService.insertRandomResource();
       }

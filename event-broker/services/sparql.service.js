@@ -1,6 +1,7 @@
 import { update, query } from "mu";
 import sha256 from "crypto-js/sha256";
 import uuidv4 from "uuid/v4";
+import { sample } from "lodash";
 
 import { STATUSES } from "../utils/constants";
 
@@ -15,7 +16,9 @@ import {
   queryPublishResourcesWithError,
   queryErrors,
   deleteQueryErrors,
-  insertAgendaQuery
+  insertAgendaQuery,
+  queryAllResourcesWithErrors,
+  queryAllResources
 } from "../utils/queries";
 
 export const getPublishResourcesByStatus = async status => {
@@ -36,6 +39,19 @@ export const getSignResourcesByStatus = async status => {
     signQuery = querySignResources(status);
   }
   return query(signQuery);
+};
+
+export const queryAllResourcesByStatus = async status => {
+  const queryString =
+    status === STATUSES.RETRY
+      ? queryAllResourcesWithErrors(status)
+      : queryAllResources(status);
+
+  const {
+    results: { bindings }
+  } = await query(queryString);
+
+  return bindings;
 };
 
 export const setResourceStatus = async (id, status, content = null) => {
@@ -62,14 +78,13 @@ export const insertResource = async params => {
   await update(insertResourceQuery);
 };
 
-export const insertRandomResource = async (
-  resourceType = "PublishedResource"
-) => {
+export const insertRandomResource = async (type, resourceUri) => {
+  const types = ["PublishedResource", "SignedResource", "BurnedResource"];
   const insertResourceQuery = insertAgendaQuery(
-    uuidv4(),
-    uuidv4(),
-    `${Math.random()}${uuidv4()}`,
-    resourceType
+    uuidv4(), // id
+    resourceUri || uuidv4(), // resourceUri
+    `${Math.random()}${uuidv4()}`, // signatory
+    type || sample(types) // Type
   );
   await update(insertResourceQuery);
 };
@@ -143,12 +158,12 @@ export const getByStatus = async status => {
     type
   });
 
-  const publishedResources = resultPublish.results.bindings.map(
-    resource => mapData(resource, "Publishing") // TODO don't hardcode
+  const publishedResources = resultPublish.results.bindings.map(resource =>
+    mapData(resource, "Publishing")
   );
 
-  const signedResources = resultSign.results.bindings.map(
-    resource => mapData(resource, "Signing") // TODO don't hardcode
+  const signedResources = resultSign.results.bindings.map(resource =>
+    mapData(resource, "Signing")
   );
 
   const conc = publishedResources.concat(signedResources);

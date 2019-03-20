@@ -1,3 +1,43 @@
+export const queryAllResourcesWithErrors = status => `PREFIX sign: <http://mu.semte.ch/vocabularies/ext/signing/>
+PREFIX ext: <http://mu.semte.ch/vocabularies/ext/>
+PREFIX dct: <http://purl.org/dc/terms/>
+SELECT DISTINCT ?type ?content ?signatory ?acmIdmSecret
+       ?timestamp (?resource) as $s ?resourceUri ?hasError
+       (GROUP_CONCAT(DISTINCT ?role; SEPARATOR = ',') as ?roles)
+WHERE {
+  ?resource a ?type;
+       sign:text ?content;
+       sign:signatory ?signatory;
+       sign:signatoryRoles ?role;
+       dct:created ?timestamp;
+       sign:signatorySecret ?acmIdmSecret;
+       sign:hasError ?hasError;
+       dct:subject  ?resourceUri;
+       sign:status
+<http://mu.semte.ch/vocabularies/ext/signing/publication-status/${status}>.
+FILTER(?type IN (sign:SignedResource, sign:PublishedResource, sign:BurnedResource))
+}`;
+
+export const queryAllResources = status => `PREFIX sign: <http://mu.semte.ch/vocabularies/ext/signing/>
+PREFIX ext: <http://mu.semte.ch/vocabularies/ext/>
+PREFIX dct: <http://purl.org/dc/terms/>
+SELECT DISTINCT ?type ?content ?signatory ?acmIdmSecret
+       ?timestamp ?resourceUri (?resource) as $s
+       (GROUP_CONCAT(DISTINCT ?role; SEPARATOR = ',') as ?roles) {
+  GRAPH ?g {
+    ?resource a ?type;
+       sign:text ?content;
+       sign:signatory ?signatory;
+       sign:signatoryRoles ?role;
+       dct:created ?timestamp;
+       sign:signatorySecret ?acmIdmSecret;
+       dct:subject  ?resourceUri;
+       sign:status
+<http://mu.semte.ch/vocabularies/ext/signing/publication-status/${status}>.
+FILTER(?type IN (sign:SignedResource, sign:PublishedResource, sign:BurnedResource))
+}
+}`;
+
 export const queryAgendas = status => `
 PREFIX sign: <http://mu.semte.ch/vocabularies/ext/signing/>
 PREFIX ext: <http://mu.semte.ch/vocabularies/ext/>

@@ -24,7 +24,7 @@ const Publish = async resource => {
     const result = await signingService.SignTransaction(
       args,
       user,
-      "publishResource" // TODO don't hardcode
+      "publishResource"
     );
     logger.info("Resource was succesfully published to the blockchain!");
     return result;
@@ -34,7 +34,7 @@ const Publish = async resource => {
   }
 };
 
-const Sign = async resource => {
+const Sign = async (resource, burn) => {
   try {
     // GET USERID OUT OF RESOURCE
     const { content, resourceId, oit, timestamp, subject, version } = resource;
@@ -49,13 +49,14 @@ const Sign = async resource => {
       timestamp,
       limitedSigners: mockLimitedSigners,
       subject,
-      version
+      version,
+      burn
     };
 
     const result = await signingService.SignTransaction(
       args,
       user,
-      "signResource" // TODO don't hardcode
+      "signResource"
     );
     logger.info("Resource was succesfully published to the blockchain!");
     return result;
