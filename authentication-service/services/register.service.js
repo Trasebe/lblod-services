@@ -14,7 +14,7 @@ const register = async (user, secret = null) => {
   }
 
   if (!secret) {
-    logger.info("Creating secret");
+    logger.info("Creating secret for use");
     // eslint-disable-next-line no-param-reassign
     secret = await fabricCaClient.register(
       {
