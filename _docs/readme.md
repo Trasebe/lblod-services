@@ -183,11 +183,44 @@ endpoint: POST `/queryHistory`
 ]
 ```
 
+# queryAll
+
+endpoint: POST `/queryAll`
+
+##### Request body:
+
+```json
+{}
+```
+
+#### Response body:
+
+```json
+[
+  {
+    "id": "string",
+    "hash": "string",
+    "timestamp": "string",
+    "limitedSigners": "number",
+    "subject": "string",
+    "version": "number",
+    "publishStatus": "string",
+    "signStatus": "string",
+    "authSignatures": "array<object>",
+    "burnSignatures": "array<object>",
+    "docType": "string",
+    "publisher": "object"
+  }
+]
+```
+
 ---
 
-## Event Broker
+---
 
 ---
+
+# Event Broker
 
 # notify
 
