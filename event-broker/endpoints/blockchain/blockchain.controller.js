@@ -163,6 +163,8 @@ const setupByNumber = async (req, res, next) => {
         await sparQLService.insertRandomResource("PublishedResource", uri);
         await sparQLService.insertRandomResource("SignedResource", uri);
         await sparQLService.insertRandomResource("SignedResource", uri);
+        await sparQLService.insertRandomResource("BurnedResource", uri);
+        await sparQLService.insertRandomResource("BurnedResource", uri);
       } else {
         await sparQLService.insertRandomResource();
       }

@@ -25,7 +25,8 @@ const DataDisplay = ({ homescreen, asset, title, history }) => (
               <th>Timestamp</th>
               <th>Publisher</th>
               {/* <th>Version</th> */}
-              <th>Signers</th>
+              <th>Auth Signers</th>
+              <th>Burn Signers</th>
             </tr>
           </thead>
           <tbody>
@@ -54,6 +55,13 @@ const DataDisplay = ({ homescreen, asset, title, history }) => (
                     {/* <td>{element.version}</td> */}
                     <td>
                       {element.authSignatures.map(user => (
+                        <div>
+                          <h4>{user.identifier}</h4>
+                        </div>
+                      ))}
+                    </td>
+                    <td>
+                      {element.burnSignatures.map(user => (
                         <div>
                           <h4>{user.identifier}</h4>
                         </div>

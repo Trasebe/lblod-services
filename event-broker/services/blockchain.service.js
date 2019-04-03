@@ -6,7 +6,7 @@ import logger from "../config/Log";
 import config from "../config/config";
 import * as sparQLService from "./sparql.service";
 
-import { STATUSES, TYPES, TYPE_MAPPING } from "../utils/constants";
+import { STATUSES, TYPE_MAPPING } from "../utils/constants";
 
 const expireTime =
   config.env === "production"
@@ -47,12 +47,18 @@ const callDecisionService = async (resource, func, count = null) => {
       body: Object.assign({}, resource),
       json: true
     });
+
     await sparQLService.setResourceStatus(
       resource.id,
-      STATUSES.PUBLISHED,
+      func === "sign?burn=true" ? STATUSES.BURNED : STATUSES.PUBLISHED,
       resource.content
     );
-    logger.info("Changed the status of resource to published");
+
+    logger.info(
+      `Changed the status of resource to ${
+        func === "sign?burn=true" ? STATUSES.BURNED : STATUSES.PUBLISHED
+      }`
+    );
   } catch (e) {
     const newCount = count === null ? 1 : count + 1;
     if (newCount < 6) {

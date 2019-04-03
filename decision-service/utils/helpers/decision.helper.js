@@ -28,25 +28,6 @@ const getCorrectTimestamp = () => {
   return `${year}-${month < 10 ? `0${month}` : `${month}-${day}`}`;
 };
 
-const getIdentifier = content => {
-  const signatoryResource = content.split('resource="')[2];
-  const signatoryURI = signatoryResource.split('"')[0];
-  const signatoryId = signatoryURI.split("/")[
-    signatoryURI.split("/").length - 1
-  ];
-
-  console.log("Current content: ", content);
-  console.log("TODO - dynamic roles using openID Ticket");
-
-  // TODO dynamic role when we retrieve openID Ticket
-  const role = "publisher";
-  return {
-    identifier: signatoryId,
-    oit: { identifier: signatoryId, role },
-    role
-  };
-};
-
 const getNewResourceId = uri => uri.split("/")[uri.split("/").length - 1];
 
 const getUser = async oit => {
@@ -73,6 +54,5 @@ export default {
   getUser,
   decryptCerts,
   getCorrectTimestamp,
-  getIdentifier,
   getNewResourceId
 };
