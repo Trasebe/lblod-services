@@ -9,6 +9,9 @@ WORKDIR /usr/src/app
 # add `/usr/src/app/node_modules/.bin` to $PATH
 ENV PATH /usr/src/app/node_modules/.bin:$PATH
 
+ARG SERVICE_URL
+ENV SERVICE_URL $SERVICE_URL
+
 # install and cache app dependencies
 RUN npm install -g yarn
 RUN yarn
