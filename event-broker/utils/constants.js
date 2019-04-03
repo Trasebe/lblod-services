@@ -3,7 +3,8 @@ export const STATUSES = {
   PUBLISHING: "publishing",
   PUBLISHED: "published",
   FAILED: "publication_failed",
-  RETRY: "waiting_for_retry"
+  RETRY: "waiting_for_retry",
+  BURNED: "burned"
 };
 
 export const TYPES = {

@@ -15,6 +15,7 @@ class HomePage extends Component {
       publishedDecisions: null,
       failedDecisions: null,
       retryDecisions: null,
+      burnedDecision: null,
       errors: null
     };
 
@@ -50,12 +51,17 @@ class HomePage extends Component {
       .getDecisionByStatus("publication_failed")
       .catch(() => ({ result: [] }));
 
+    const burnedDecision = await this.chainService
+      .getDecisionByStatus("burned")
+      .catch(() => ({ result: [] }));
+
     this.setState({
       decisions: decisions.result,
       publishedDecisions: publishedDecisions.result,
       publishingDecisions: publishingDecisions.result,
       failedDecisions: failedDecisions.result,
       retryDecisions: retryDecisions.result,
+      burnedDecision: burnedDecision.result,
       errors: errors.result
     });
   };
@@ -91,6 +97,7 @@ class HomePage extends Component {
       publishedDecisions,
       failedDecisions,
       retryDecisions,
+      burnedDecision,
       errors
     } = this.state;
 
@@ -127,6 +134,11 @@ class HomePage extends Component {
         <br />
 
         <DataDisplay asset={failedDecisions} title="failed resources" />
+        <br />
+        <br />
+        <br />
+
+        <DataDisplay asset={burnedDecision} title="Burned resources" />
         <br />
         <br />
         <br />

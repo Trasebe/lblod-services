@@ -37,7 +37,8 @@ MyContent.defaultProps = {
 
 const MyFooter = () => (
   <Footer style={{ textAlign: "center", padding: 0, paddingBottom: 5 }}>
-    <b>Alle getoonde data is fictief</b> - Bewire ©2018 Created by Trase
+    {/* <b>Alle getoonde data is fictief</b> */}
+    Bewire ©2018 Created by Trase
   </Footer>
 );
 
