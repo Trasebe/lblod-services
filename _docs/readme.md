@@ -114,7 +114,7 @@ endpoint: POST `/validate`
 {
   "id": "string",
   "hash": "string",
-  "result": bool,
+  "result": "bool",
   "blockchainHash": "string"
 }
 ```
