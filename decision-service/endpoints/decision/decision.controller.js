@@ -1,4 +1,5 @@
 import httpStatus from "http-status";
+import sha256 from "crypto-js/sha256";
 
 import logger from "../../config/Log";
 import decisionService from "../../services/decision.service";
@@ -10,15 +11,24 @@ const publish = async (req, res, next) => {
     const result = await decisionService.Publish(resource);
     res.status(httpStatus.OK).json({ result });
   } catch (e) {
-    next(e);
+    if (e.error && e.error.errors) {
+      const unifiedErrorMessage = e.error.errors
+        .map(error => error.title)
+        .join(" and ");
+      next({ message: unifiedErrorMessage });
+    }
+
+    next({ message: e.message });
   }
 };
 
 const sign = async (req, res, next) => {
   try {
-    logger.info("Signing resources..");
     const resource = req.body;
-    const result = await decisionService.Sign(resource);
+    const { burn } = req.query;
+    logger.info(`Signing resources to ${burn ? "burn" : "approve"}`);
+
+    const result = await decisionService.Sign(resource, burn);
     res.status(httpStatus.OK).json({ result });
   } catch (e) {
     next(e);
@@ -36,7 +46,10 @@ const getAll = async (req, res, next) => {
 
 const validate = async (req, res, next) => {
   try {
-    const { id, hash } = req.body;
+    const resource = req.body;
+    const id = resource.resourceUri.value;
+    const hash = sha256(resource.content.value).toString();
+
     const { result, blockchainHash } = await decisionService.Validate(id, hash);
     res.status(httpStatus.OK).json({
       id,

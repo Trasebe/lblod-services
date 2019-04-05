@@ -1,9 +1,10 @@
 import Connection, { setAuthToken } from "../__helpers__/Connection";
 
 export default class ChainService {
-  // "http://localhost:3000"
-  constructor(baseUrl = "http://localhost:80") {
+  // "http://localhost:3000" // "https://blockchain-demo.lblod.info"
+  constructor(baseUrl = process.env.SERVICE_URL || "http://localhost:80") {
     this.connection = new Connection(baseUrl);
+    console.log("Current connection: ", baseUrl);
   }
 
   setAuthToken = token => {

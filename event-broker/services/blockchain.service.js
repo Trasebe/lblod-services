@@ -6,14 +6,12 @@ import logger from "../config/Log";
 import config from "../config/config";
 import * as sparQLService from "./sparql.service";
 
-import { STATUSES } from "../utils/constants";
+import { STATUSES, TYPE_MAPPING } from "../utils/constants";
 
-let exptime;
-if (config.env === "production") {
-  exptime = [30000, 120000, 300000, 600000, 1800000];
-} else {
-  exptime = [10000, 10000, 10000, 10000, 10000];
-}
+const expireTime =
+  config.env === "production"
+    ? [30000, 120000, 300000, 600000, 1800000]
+    : [3000, 3000];
 
 const generalizeToResource = resource => {
   try {
@@ -32,10 +30,8 @@ const generalizeToResource = resource => {
         secret: resource.acmIdmSecret.value,
         fullIdentifier: resource.signatory.value
       },
-      resourceId: resource.publishedResource
-        ? resource.publishedResource.value
-        : resource.signedResource.value,
-      subject: resource.resourceType.value,
+      resourceId: resource.resourceUri.value,
+      subject: resource.type.value,
       timestamp: resource.timestamp.value,
       version: 1 // resource.version.value TODO - retrieve version
     };
@@ -51,26 +47,32 @@ const callDecisionService = async (resource, func, count = null) => {
       body: Object.assign({}, resource),
       json: true
     });
+
     await sparQLService.setResourceStatus(
       resource.id,
-      STATUSES.PUBLISHED,
+      func === "sign?burn=true" ? STATUSES.BURNED : STATUSES.PUBLISHED,
       resource.content
     );
-    logger.info("Changed the status of resource to published");
+
+    logger.info(
+      `Changed the status of resource to ${
+        func === "sign?burn=true" ? STATUSES.BURNED : STATUSES.PUBLISHED
+      }`
+    );
   } catch (e) {
     const newCount = count === null ? 1 : count + 1;
     if (newCount < 6) {
       await sparQLService.setResourceStatusRetry(resource.id, e, newCount);
       setTimeout(
         callDecisionService,
-        exptime[newCount - 1],
+        expireTime[newCount - 1],
         resource,
         func,
         newCount
       );
       logger.info(`Changed the status of resource to waiting_for_retry: ${e}`);
       logger.info(
-        `Timeout has been set for: ${exptime[newCount - 1] / 1000} seconds`
+        `Timeout has been set for: ${expireTime[newCount - 1] / 1000} seconds`
       );
     } else {
       await sparQLService.setResourceStatus(resource.id, STATUSES.FAILED);
@@ -99,39 +101,43 @@ const setToPublishing = async resources => {
   }
 };
 
-const notifyPublish = async (resources, count = null) => {
-  resources.forEach(async resource => {
+const notify = async resources => {
+  for (const resource of resources) {
     try {
-      const resourceObject = generalizeToResource(resource, "publish"); // TODO don't hardcode
-      await callDecisionService(resourceObject, "publish", count); // TODO don't hardcode
+      const fcn = TYPE_MAPPING[resource.type.value];
+      const resourceObject = generalizeToResource(resource);
+      await callDecisionService(resourceObject, fcn);
+    } catch (e) {
+      await sparQLService.setResourceStatus(resource.s.value, STATUSES.FAILED);
+      logger.info(`Changed the status of resource to failed: ${e}`);
+    }
+  }
+};
+
+const notifyPublish = async (resources, count = null) => {
+  for (const resource of resources) {
+    try {
+      const resourceObject = generalizeToResource(resource, "publish");
+      await callDecisionService(resourceObject, "publish", count);
     } catch (e) {
       await sparQLService.setResourceStatus(resource.s.value, STATUSES.FAILED);
       logger.info(
         `notifyPublish, Changed the status of resource to failed: ${e}`
       );
     }
-  });
+  }
 };
 
 const notifySign = async resources => {
   for (const resource of resources) {
     try {
-      const resourceObject = generalizeToResource(resource, "sign"); // TODO don't hardcode
-      await callDecisionService(resourceObject, "sign"); // TODO don't hardcode
+      const resourceObject = generalizeToResource(resource, "sign");
+      await callDecisionService(resourceObject, "sign");
     } catch (e) {
       await sparQLService.setResourceStatus(resource.s.value, STATUSES.FAILED);
       logger.info(`notifySign, Changed the status of resource to failed: ${e}`);
     }
   }
-};
-
-const getInfoFromResource = resource => {
-  const id = resource.s.value;
-  const hash = sha256(resource.content.value).toString();
-  return {
-    id,
-    hash
-  };
 };
 
 const getDistinctResources = resources => {
@@ -153,6 +159,6 @@ export default {
   setToPublishing,
   notifyPublish,
   notifySign,
-  getInfoFromResource,
-  getDistinctResources
+  getDistinctResources,
+  notify
 };

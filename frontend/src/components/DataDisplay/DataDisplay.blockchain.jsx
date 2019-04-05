@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { sortBy } from "lodash";
 
 import "./DataDisplay.css";
 
@@ -24,12 +25,13 @@ const DataDisplay = ({ homescreen, asset, title, history }) => (
               <th>Timestamp</th>
               <th>Publisher</th>
               {/* <th>Version</th> */}
-              <th>Signers</th>
+              <th>Auth Signers</th>
+              <th>Burn Signers</th>
             </tr>
           </thead>
           <tbody>
             {asset && !asset.msg
-              ? asset.map((element, index) => (
+              ? sortBy(asset, a => a.timestamp).map((element, index) => (
                   <tr
                     key={`table-${index}`}
                     onClick={() => {
@@ -53,6 +55,13 @@ const DataDisplay = ({ homescreen, asset, title, history }) => (
                     {/* <td>{element.version}</td> */}
                     <td>
                       {element.authSignatures.map(user => (
+                        <div>
+                          <h4>{user.identifier}</h4>
+                        </div>
+                      ))}
+                    </td>
+                    <td>
+                      {element.burnSignatures.map(user => (
                         <div>
                           <h4>{user.identifier}</h4>
                         </div>

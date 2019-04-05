@@ -12,11 +12,12 @@ router
   .route("/getByStatus/:status")
   .get(validate(getByStatusScheme), blockchainCtrl.getByStatus);
 router.route("/validateAll").post(blockchainCtrl.validate);
+router.route("/getErrors").post(blockchainCtrl.getErrors);
+
 if (config.env === "development") {
   router.route("/setup").post(blockchainCtrl.setup);
   router.route("/reset").post(blockchainCtrl.reset);
   router.route("/setupByNumber").post(blockchainCtrl.setupByNumber);
 }
-router.route("/getErrors").post(blockchainCtrl.getErrors);
 
 export default router;

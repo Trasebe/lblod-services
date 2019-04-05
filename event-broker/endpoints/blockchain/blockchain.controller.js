@@ -1,6 +1,6 @@
 import requestPromise from "request-promise";
 import httpStatus from "http-status";
-import { isEmpty } from "lodash";
+import { isEmpty, chunk, uniqBy, difference } from "lodash";
 import config from "../../config/config";
 
 import logger from "../../config/Log";
@@ -9,31 +9,62 @@ import blockchainService from "../../services/blockchain.service";
 
 import { STATUSES } from "../../utils/constants";
 
+const handleNotify = async (resources, unique = false) => {
+  const x = Math.ceil(resources.length / 5);
+  const publishChunks = chunk(resources, x);
+
+  const promises = publishChunks.map(resourceChunk =>
+    blockchainService.notify(resourceChunk)
+  );
+
+  if (unique) {
+    await Promise.all(promises);
+  }
+};
+
 // has no dependencies - only internal logging needed
 const notify = async (req, res, next) => {
   try {
     logger.info("Notified - querying resources...");
 
-    const {
-      results: { bindings: publishedResources }
-    } = await sparQLService.getPublishResourcesByStatus(STATUSES.UNPUBLISHED);
-    const {
-      results: { bindings: signedResources }
-    } = await sparQLService.getSignResourcesByStatus(STATUSES.UNPUBLISHED);
+    const result = await sparQLService.queryAllResourcesByStatus(
+      STATUSES.UNPUBLISHED
+    );
 
-    logger.info(`${publishedResources.length} resources ready to be published`);
-    logger.info(`${signedResources.length} resources ready to be signed`);
+    // Remove multiple actions on the same object - keep these for the next iteration
+    const resources = uniqBy(result, ({ resourceUri }) => resourceUri.value);
 
-    if (!isEmpty(publishedResources)) {
-      await blockchainService.setToPublishing(publishedResources);
-      blockchainService.notifyPublish(publishedResources);
+    // Unique resources - awaiting action to register
+    const uniqueResources = uniqBy(
+      resources,
+      ({ signatory }) => signatory.value
+    );
+
+    // All non-unique resources, which can be handled async
+    const nonUniqueResources = difference(resources, uniqueResources);
+
+    await blockchainService.setToPublishing(uniqueResources);
+    await blockchainService.setToPublishing(nonUniqueResources);
+
+    logger.info(
+      `${uniqueResources.length +
+        nonUniqueResources.length} resources ready to be published/signed/burned`
+    );
+
+    // console.log("result", result.length);
+    // console.log("resources", resources.length);
+    // console.log("uniqueResources", uniqueResources.length);
+    // console.log("non-unique ", nonUniqueResources.length);
+
+    if (!isEmpty(uniqueResources)) {
+      await handleNotify(uniqueResources, true);
     }
-    if (!isEmpty(signedResources)) {
-      await blockchainService.setToPublishing(signedResources);
-      blockchainService.notifySign(signedResources);
+
+    if (!isEmpty(nonUniqueResources)) {
+      handleNotify(nonUniqueResources);
     }
 
-    res.status(httpStatus.OK);
+    res.sendStatus(httpStatus.OK);
   } catch (e) {
     logger.error(`Error during notify ${e}`);
     next(e);
@@ -59,12 +90,11 @@ const validate = async (req, res, next) => {
 
       // eslint-disable-next-line
       for (const resource of resources) {
-        const { id, hash } = blockchainService.getInfoFromResource(resource);
         const response = await requestPromise.post(
-          `${config.decisionService}/decision/validate`,
+          `${config.decisionService}/decision/validate`, // TODO remove decisionService from config
           {
             method: "POST",
-            body: { id, hash },
+            body: resource,
             json: true
           }
         );
@@ -106,7 +136,7 @@ const setup = async (req, res, next) => {
   try {
     logger.info("Adding resource");
     await sparQLService.insertResource(req.body);
-    res.status(httpStatus.OK).send("Object was succesfully inserted");
+    res.sendStatus(httpStatus.OK);
   } catch (e) {
     logger.error(e);
     next(e);
@@ -116,7 +146,7 @@ const setup = async (req, res, next) => {
 const reset = async (req, res, next) => {
   try {
     await sparQLService.reset();
-    res.status(httpStatus.OK).send("SPARQL database was reset succcesfully");
+    res.sendStatus(httpStatus.OK);
   } catch (e) {
     logger.error(e);
     next(e);
@@ -128,10 +158,19 @@ const setupByNumber = async (req, res, next) => {
     const { amount } = req.body;
     logger.info(`Adding ${amount} resources`);
     for (let index = 0; index < amount; index += 1) {
-      await sparQLService.insertRandomResource();
+      if (index % 2 === 0) {
+        const uri = Math.random().toString();
+        await sparQLService.insertRandomResource("PublishedResource", uri);
+        await sparQLService.insertRandomResource("SignedResource", uri);
+        await sparQLService.insertRandomResource("SignedResource", uri);
+        await sparQLService.insertRandomResource("BurnedResource", uri);
+        await sparQLService.insertRandomResource("BurnedResource", uri);
+      } else {
+        await sparQLService.insertRandomResource();
+      }
     }
 
-    res.status(httpStatus.OK).send("Object was succesfully inserted");
+    res.sendStatus(httpStatus.OK);
   } catch (e) {
     logger.error(e);
     next(e);

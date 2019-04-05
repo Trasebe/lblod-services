@@ -9,7 +9,6 @@ dotenv.config();
 const envVarsSchema = Joi.object({
   PORT: Joi.number().default(3000),
   MONGO_PORT: Joi.number().default(27017),
-  USE_DB: Joi.boolean().default(false),
   NODE_ENV: Joi.string()
     .allow(["development", "production", "test", "provision"])
     .default("development"),
@@ -20,7 +19,16 @@ const envVarsSchema = Joi.object({
   }),
   ADMIN_PW: Joi.string()
     .required()
-    .description("Admin password required")
+    .description("Admin password required"),
+  APP_MONGO_USER: Joi.string()
+    .required()
+    .description("App Mongo User"),
+  APP_MONGO_PASS: Joi.string()
+    .required()
+    .description("App Mongo User Password"),
+  MONGO_INITDB_DATABASE: Joi.string()
+    .required()
+    .description("DB Name")
 })
   .unknown()
   .required();
@@ -38,8 +46,10 @@ const config = {
   env: envVars.NODE_ENV,
   port: envVars.PORT,
   mongooseDebug: envVars.MONGOOSE_DEBUG,
-  useDb: envVars.USE_DB,
-  ADMIN_PW: envVars.ADMIN_PW
+  ADMIN_PW: envVars.ADMIN_PW,
+  mongoUser: envVars.APP_MONGO_USER,
+  mongoPass: envVars.APP_MONGO_PASS,
+  dbName: envVars.MONGO_INITDB_DATABASE
 };
 
 export default config;

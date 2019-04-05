@@ -10,12 +10,7 @@ const envVarsSchema = Joi.object({
   PORT: Joi.number().default(3000),
   NODE_ENV: Joi.string()
     .allow(["development", "production", "test", "provision"])
-    .default("development"),
-  PROTOCOL: Joi.boolean().when("NODE_ENV", {
-    is: Joi.string().equal("production"),
-    then: Joi.boolean().default("https"),
-    otherwise: Joi.boolean().default("http")
-  })
+    .default("development")
 })
   .unknown()
   .required();
@@ -32,7 +27,7 @@ if (error) {
 const config = {
   env: envVars.NODE_ENV,
   port: envVars.PORT,
-  decisionService: `${envVars.PROTOCOL}://decisionservice`
+  decisionService: "http://decisionservice"
 };
 
 if (config.env === "test") {

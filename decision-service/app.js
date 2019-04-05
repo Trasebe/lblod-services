@@ -1,13 +1,13 @@
 import { app, errorHandler } from "mu";
 import mongoose from "mongoose";
 import util from "util";
-import https from "https";
-import fs from "fs";
 
 import routes from "./app.routes";
 import logger from "./config/Log";
 import network from "./services/network.service";
 import config from "./config/config";
+
+const mongoUri = `mongodb://mongodb:27017/${config.dbName}`;
 
 const init = async () => {
   logger.info("=========== STARTING UP DECISION SERVER ===========");
@@ -30,54 +30,44 @@ const init = async () => {
     process.exit(1);
   }
 
-  const mongoUri =
-    config.env === "production"
-      ? "mongodb://mongodb:27017/abb-lblod"
-      : "mongodb://mongodb:27017/abb-lblod-dev";
-
   // connect to mongo db
-  await mongoose
+  mongoose
     .connect(
       mongoUri,
       {
         useCreateIndex: true,
         useNewUrlParser: true,
-        poolSize: 2
+        poolSize: 2,
+        reconnectTries: Number.MAX_VALUE,
+        reconnectInterval: 5000,
+        auth: {
+          user: config.mongoUser,
+          password: config.mongoPass
+        }
       }
     )
-    .catch(
+    .then(
+      () => {
+        // start server
+        app.listen(80, () =>
+          logger.info(
+            `Started decision server on port 80 in ${app.get("env")} mode`
+          )
+        );
+
+        // print mongoose logs in dev env
+        if (app.get("env") === "development") {
+          mongoose.set("debug", (collectionName, method, query, doc) => {
+            logger.info(
+              `${collectionName}.${method}`,
+              util.inspect(query, false, 20),
+              doc
+            );
+          });
+        }
+      },
       e => new Error(`unable to connect to database: ${config.mongoUri}`, e)
     );
-
-  if (config.env === "production") {
-    const httpsOptions = {
-      key: fs.readFileSync("certs/localhost-key.pem"),
-      cert: fs.readFileSync("certs/localhost.pem")
-    };
-    https.createServer(httpsOptions, app).listen(443, () => {
-      logger.info(
-        `Started decision server on port 443 in ${app.get("env")} mode`
-      );
-    });
-  } else {
-    // start server
-    app.listen(80, () =>
-      logger.info(
-        `Started decision server on port 80 in ${app.get("env")} mode`
-      )
-    );
-  }
-
-  // print mongoose logs in dev env
-  if (app.get("env") === "development") {
-    mongoose.set("debug", (collectionName, method, query, doc) => {
-      logger.info(
-        `${collectionName}.${method}`,
-        util.inspect(query, false, 20),
-        doc
-      );
-    });
-  }
 };
 
 init();

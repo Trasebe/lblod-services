@@ -1,5 +1,5 @@
 # base image
-FROM node:8.15.0
+FROM node:8.15.1
 
 # set working directory
 RUN mkdir /usr/src/app
@@ -8,6 +8,9 @@ WORKDIR /usr/src/app
 
 # add `/usr/src/app/node_modules/.bin` to $PATH
 ENV PATH /usr/src/app/node_modules/.bin:$PATH
+
+ARG SERVICE_URL
+ENV SERVICE_URL $SERVICE_URL
 
 # install and cache app dependencies
 RUN npm install -g yarn
