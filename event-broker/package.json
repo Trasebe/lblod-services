@@ -10,7 +10,7 @@
   "author": "",
   "license": "AGPL-3.0",
   "dependencies": {
-    "crypto-js": "^3.1.9-1",
+    "crypto-js": "^4.0.0",
     "dotenv": "^6.2.0",
     "express-validation": "^1.0.2",
     "express-winston": "^3.0.1",
